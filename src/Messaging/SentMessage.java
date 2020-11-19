@@ -1,5 +1,6 @@
 package Messaging;
 
-public class SentMessage {
+public class SentMessage implements Runnable{
+
     
 }

@@ -8,14 +8,14 @@ import java.io.Serializable;
  * 
  * @author Jacob Varela
  */
-public class Message implements Serializable{
+public class MessageInfo implements Serializable{
 
     // Variables that hold information in a message.
     public String message, source, AHAddress;
     public int AHPort, portNum;
 
     /**
-     * This is the constroctor for the Message object.
+     * This is the constroctor for the MessageInfo object.
      * @param message String that contains instructions for the recipient. 
      * @param source  String that identifies what Actor is sending the message.
      * @param AHAddress String containing the address of an auction house. Will
@@ -24,7 +24,7 @@ public class Message implements Serializable{
      *               Will be set to 0 if not needed.
      * @param portNum integer containing the port number of the sender.
      */
-    public Message(String message, String source, String AHAddress,
+    public MessageInfo(String message, String source, String AHAddress,
                    int AHPort, int portNum){
         this.message   = message;
         this.source    = source;
