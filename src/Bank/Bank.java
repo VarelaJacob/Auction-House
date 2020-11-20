@@ -87,4 +87,45 @@ public class Bank {
         agentNum   = 1;
         auctionNum = 1;
     }
+
+    /************ */
+    private static void main(String[] args){
+
+    }
+
+    /************ */
+    public synchronized String handleMessage(){
+
+    }
+        
+    /************ */
+    private void notifyAuction() {
+
+    }
+
+    /************ */
+    private void notifyAgents() {
+
+    }
+
+    /************ */
+    private boolean blockFunds() {
+
+    }
+
+    /************ */
+    private boolean unBlockFunds(){
+
+    }
+
+    /************ */
+    private int transferFunds(){
+
+    }
+
+    /************ */
+    private int UntransferFunds(){
+
+    }
+
 }
