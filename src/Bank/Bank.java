@@ -7,6 +7,8 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import Message.MessageInfo;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import Message.MessageIn;
 
 
@@ -128,4 +130,13 @@ public class Bank {
 
     }
 
+    /************ */
+    public HBox bankInfo() {
+
+    }
+
+    /************ */
+    public VBox bankConnections(){
+
+    } 
 }
