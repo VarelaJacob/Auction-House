@@ -5,6 +5,8 @@ import java.io.Serializable;
  * This is a class for a Message that is to be sent. It contains information
  * that will be interpreted by whichever Actor is receiving the message.
  * The Actors are either a Bank, an Agent, or an Auction House.
+ * This class implements Serializable because it will be sent through
+ * ObjectInputStream and ObjectOutputStream.
  * 
  * @author Jacob Varela
  */
