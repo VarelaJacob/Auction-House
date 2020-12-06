@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import Message.MessageInfo;
+import Messaging.MessageInfo;
+import Messaging.MessageIn;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import Message.MessageIn;
-
 
 public class Bank {
 
@@ -61,7 +61,7 @@ public class Bank {
      * The HashMap key is the ID of the Agent or Auction House.
      * The HashMap value is an instance of the connection handler. 
      */
-    private HashMap<String,Messaging.MessageIn> agentLink;
+    private HashMap<String,MessageIn> agentLink;
     private HashMap<String,MessageIn> auctionLink;
 
     /**
@@ -99,8 +99,21 @@ public class Bank {
     }
 
     /************ */
-    public synchronized String handleMessage(){
+    public synchronized String handleMessage(
+        MessageInfo newMessage, Socket socket, MessageIn connectionHandler)
+        throws IOException {
 
+        String messageAuthor = newMessage.source.toLowerCase();
+        String returnMessage = "Requestion action was not completed successfully. Please try again";
+
+        switch(messageAuthor){
+            case "agent":
+            case "auction":
+            case "bank":
+            default:
+                return returnMessage;
+        }
+        
     }
         
     /************ */
