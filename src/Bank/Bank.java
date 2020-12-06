@@ -4,7 +4,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import Message.MessageInfo;
 import javafx.scene.layout.HBox;
@@ -106,8 +108,8 @@ public class Bank {
     }
 
     /************ */
-    private void notifyAgents() {
-
+    private void notifyAgents(String newMessage) {
+        for( String agentID : agentLink.)
     }
 
     /************ */
@@ -176,6 +178,26 @@ public class Bank {
         actionStatus = true;
         
         return actionStatus;
+    }
+
+    /************ */
+    private List<String> extractValues(String inputText){
+
+        String[] newInputText = inputText.split(" ");
+
+        List<String> inputValues = new ArrayList<>();
+
+        for (String s : newInputText) {
+            for (int j = 0; j < s.length(); j++) {
+
+                if (Character.isDigit(s.charAt(j))) {
+                    inputValues.add(s);
+                    break;
+                }
+            }
+        }
+
+        return inputValues;
     }
 
     /************ */
