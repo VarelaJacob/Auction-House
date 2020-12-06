@@ -122,7 +122,7 @@ public class Bank {
         }
 
         agentBlockedFunds.replace(agendID, agentBlockedFunds.get(agendID) + blockAmount);
-        agentBal.replace( agendID, agendBal.get(agentID) - blockAmount);
+        agentBal.replace( agendID, agentBal.get(agentID) - blockAmount);
 
         actionStatus = true;
 
@@ -130,8 +130,22 @@ public class Bank {
     }
 
     /************ */
-    private boolean unBlockFunds(){
+    private boolean unBlockFunds(String agentID, int unBlockAmount) {
+        boolean actionStatus = false;
 
+        if( agentBlockedFunds.get(agentID) < unBlockAmount ){
+            return actionStatus;
+        }
+        else if( unBlockAmount <= 0 ){
+            return actionStatus;
+        }
+
+        agentBlockedFunds.replace(agentID, agentBlockedFunds.get(agentID) - unBlockAmount);
+        agentBal.replace(agentID, agentBal.get(agentID) + unBlockAmount);
+
+        actionStatus = true;
+
+        return actionStatus;
     }
 
     /************ */
