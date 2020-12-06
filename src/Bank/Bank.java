@@ -145,10 +145,16 @@ public class Bank {
     }
 
     /************ */
-    private int transferFunds(String agentID, String auctionID, int transferAmount){
-        int actionStatus = false;
+    private boolean transferFunds(String agentID, String auctionID, int transferAmount){
+        boolean actionStatus = false;
 
-        if( transferAmount <= 0)
+        if( (transferAmount <= 0) ||
+            (transferAmount > agentBal.get(agentID)) ){
+            return actionStatus;
+        }
+
+        agentBlockedFunds.replace(agentID, agentBlockedFunds.get(agentID) - transferAmount);
+        auctionBal.replace(auctionID, auctionBal.get(auctionID) + transferAmount);
 
         return actionStatus;
     }
