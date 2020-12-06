@@ -1,6 +1,7 @@
 package Bank;
 
 import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -103,8 +104,8 @@ public class Bank {
     }
         
     /************ */
-    private void notifyAuction() {
-
+    private void notifyAuction(String auctionID, String newMessage) throws IOException {
+        auctionLink.get(auctionID).sendMessage(newMessage);
     }
 
     /************ */
