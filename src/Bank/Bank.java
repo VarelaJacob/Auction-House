@@ -60,7 +60,7 @@ public class Bank {
      * The HashMap key is the ID of the Agent or Auction House.
      * The HashMap value is an instance of the connection handler. 
      */
-    private HashMap<String,MessageIn> agentLink;
+    private HashMap<String,Messaging.MessageIn> agentLink;
     private HashMap<String,MessageIn> auctionLink;
 
     /**
@@ -109,7 +109,13 @@ public class Bank {
 
     /************ */
     private void notifyAgents(String newMessage) {
-        for( String agentID : agentLink.)
+        for( String agentID : agentLink.keySet()) {
+            try{
+                agentLink.get(agentID).sendMessage(newMessage);
+            } catch (IOException e) {
+                System.out.println("Unable to send message.");
+            }
+        }
     }
 
     /************ */
