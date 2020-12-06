@@ -111,18 +111,16 @@ public class Bank {
     }
 
     /************ */
-    private boolean blockFunds(String agendID, int blockAmount) {
+    private boolean blockFunds(String agentID, int blockAmount) {
         boolean actionStatus = false;
 
-        if( agentBal.get(agendID) < blockAmount ){
-            return actionStatus;
-        }
-        else if( blockAmount <= 0){
+        if( (agentBal.get(agentID) < blockAmount) ||
+            (blockAmount <= 0) ){
             return actionStatus;
         }
 
-        agentBlockedFunds.replace(agendID, agentBlockedFunds.get(agendID) + blockAmount);
-        agentBal.replace( agendID, agentBal.get(agentID) - blockAmount);
+        agentBlockedFunds.replace(agentID, agentBlockedFunds.get(agentID) + blockAmount);
+        agentBal.replace( agentID, agentBal.get(agentID) - blockAmount);
 
         actionStatus = true;
 
@@ -133,10 +131,8 @@ public class Bank {
     private boolean unBlockFunds(String agentID, int unBlockAmount) {
         boolean actionStatus = false;
 
-        if( agentBlockedFunds.get(agentID) < unBlockAmount ){
-            return actionStatus;
-        }
-        else if( unBlockAmount <= 0 ){
+        if( (agentBlockedFunds.get(agentID) < unBlockAmount) || 
+            (unBlockAmount <= 0) ){
             return actionStatus;
         }
 
@@ -149,8 +145,12 @@ public class Bank {
     }
 
     /************ */
-    private int transferFunds(){
+    private int transferFunds(String agentID, String auctionID, int transferAmount){
+        int actionStatus = false;
 
+        if( transferAmount <= 0)
+
+        return actionStatus;
     }
 
     /************ */
