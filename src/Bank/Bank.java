@@ -156,12 +156,26 @@ public class Bank {
         agentBlockedFunds.replace(agentID, agentBlockedFunds.get(agentID) - transferAmount);
         auctionBal.replace(auctionID, auctionBal.get(auctionID) + transferAmount);
 
+        actionStatus = true;
+
         return actionStatus;
     }
 
     /************ */
-    private int UntransferFunds(){
+    private boolean UntransferFunds(String agentID, string auctionID, int transferAmount){
+        boolean actionStatus = false;
 
+        if( (transferAmount <= 0) ||
+            (transferAmount > auctionBal.get(auctionID)) ){
+            return actionStatus;
+        }
+
+        auctionBal.replace(auctionID, auctionBal.get(auctionID) - transferAmount);
+        agentBal.replace(agentID, agentBal.get(agentID) + transferAmount);
+
+        actionStatus = true;
+        
+        return actionStatus;
     }
 
     /************ */
