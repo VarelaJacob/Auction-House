@@ -111,8 +111,22 @@ public class Bank {
     }
 
     /************ */
-    private boolean blockFunds() {
+    private boolean blockFunds(String agendID, int blockAmount) {
+        boolean actionStatus = false;
 
+        if( agentBal.get(agendID) < blockAmount ){
+            return actionStatus;
+        }
+        else if( blockAmount <= 0){
+            return actionStatus;
+        }
+
+        agentBlockedFunds.replace(agendID, agentBlockedFunds.get(agendID) + blockAmount);
+        agentBal.replace( agendID, agendBal.get(agentID) - blockAmount);
+
+        actionStatus = true;
+
+        return actionStatus;
     }
 
     /************ */
