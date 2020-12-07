@@ -48,5 +48,33 @@ public class MessageIn {
         outStream.writeObject(new MessageInfo(source, newMessage, null, 0, 0));
     }
 
+    /****** */
+    @Override
+    public void run(){
+        
+        String newMessage = "" + socket.getPort();
+
+        try {
+            outStream.writeObject(
+                new MessageInfo(source, newMessage, null, 0, 0));
+            outStream.writeObject(
+                new MessageInfo(source, returnMessage, null, 0, 0));
+            
+            MessageInfo inputMessage;
+            while( (inputMessage = (MessageInfo) inputStream.readObject()) != null) {
+                if( source.equals("Bank") ){
+                    bank.handleMessage(newMessage, socket, this);
+                }
+                else if( source.equals("auction") {
+                    auction.handleMessage(newMessage, socket, this);
+                }
+                
+                outStream.writeObject(
+                    new MessageInfo(source, newMessage, null, 0, 0)
+                );
+            }
+            socket.close();
+        }
+    }
 
 }
