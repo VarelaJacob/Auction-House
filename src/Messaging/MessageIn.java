@@ -45,7 +45,7 @@ public class MessageIn implements Runnable{
 
     /******* */
     public void sendMessage(String newMessage) throws IOException {
-        outStream.writeObject(new MessageInfo(source, newMessage, null, 0, 0));
+        outStream.writeObject(new MessageInfo(newMessage, source, null, 0, 0));
     }
 
     /****** */
@@ -56,31 +56,31 @@ public class MessageIn implements Runnable{
 
         try {
             outStream.writeObject(
-                new MessageInfo(source, newMessage, null, 0, 0));
+                new MessageInfo(newMessage, source, null, 0, 0));
             outStream.writeObject(
-                new MessageInfo(source, returnMessage, null, 0, 0));
+                new MessageInfo(returnMessage, source, null, 0, 0));
             
             MessageInfo inputMessage;
             while( (inputMessage = (MessageInfo) inputStream.readObject()) != null) {
                 if( source.equals("Bank") ){
                     bank.handleMessage(inputMessage, socket, this);
                 }
-                else if( source.equals("auction") {
-                    auction.handleMessage(inputMessage, socket, this);
+                else if( source.equals("auction") ){
+//                    auction.handleMessage(inputMessage, socket, this);
                 }
                 
                 outStream.writeObject(
-                    new MessageInfo(source, newMessage, null, 0, 0)
+                    new MessageInfo(newMessage, source, null, 0, 0)
                 );
             }
             socket.close();
-        } catch (IOException | ClassNotFoundException | InterruptedException e){
+        } catch (IOException | ClassNotFoundException e){
             if( source.equals("Bank")){
                 System.out.println("Connection Lost." +
                                    "Try the command 'bank info' for more information.");
                 try {
                     bank.handleMessage(
-                        new MessageInfo("bank", "delete", null, 0,socket.getPort()), socket, this);
+                        new MessageInfo("delete","bank", null, 0,socket.getPort()), socket, this);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
