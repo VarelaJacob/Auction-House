@@ -48,7 +48,7 @@ public class BankGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 971, 300);
+        Scene scene = new Scene(bankPane, 971, 350);
         primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -129,6 +129,9 @@ public class BankGUI extends Application {
 
         // Create Text Field to get the Bank's Port Number
         TextField portBox = new TextField();
+        portBox.setPrefHeight(50);
+        portBox.setMaxWidth(350);
+        portBox.setFont(Font.font("Arial", 35));
         portBox.setTextFormatter(portFormatting);
 
         Thread serverThread = new Thread(new Runnable() {

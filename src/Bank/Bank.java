@@ -165,11 +165,17 @@ public class Bank {
                                     "No bank account found." +
                                     "Please create an account with the bank before attempting to interact with the bank" +
                                     messageDivider;
+                    return returnMessage;
                 }
                 else if(newMessage.message.contains("current AH connections")){
                     if(auctionLink.isEmpty()){
                         returnMessage = messageDivider +
                                         "No Auction Houses are currently connected to the bank.";
+                        String myID = agentPort.get(socket.getPort());
+                        agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                            );
+                        return returnMessage;
                     }
                     else{
                         returnMessage = messageDivider +
@@ -185,6 +191,11 @@ public class Bank {
                                                 Arrays.toString(info) +
                                                 '\n' + messageDivider;
                                         }
+                        String myID = agentPort.get(socket.getPort());
+                        agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                            );
+                        return returnMessage;
                     }
                 }
                 else if(newMessage.message.equals("account info")){
@@ -201,6 +212,10 @@ public class Bank {
                                     "Account Balance: " + myBal +'\n' +
                                     "Funds Blocked: " + myBlocked +'\n'+
                                     messageDivider;
+                    agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                    );
+                    return returnMessage;
                 }
                 else if(newMessage.message.contains("transfer")){
                     List<String> messageValues = 
@@ -215,6 +230,11 @@ public class Bank {
                                         "Invalid number of identifiers. " +'\n'+
                                         "Message should include the Auction House ID and funds amount." +'\n'+
                                         messageDivider;
+                        String myID = agentPort.get(socket.getPort());
+                        agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                            );
+                        return returnMessage;
                     }
                     else{
                         transferAmount = 
@@ -234,6 +254,10 @@ public class Bank {
                                                 agentPort.get(socket.getPort()),
                                                 auctionID);
 
+                            String myID = agentPort.get(socket.getPort());
+                            agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                            );
                             return returnMessage;
                         }
                     }
@@ -245,6 +269,11 @@ public class Bank {
                                     "ip address: " + ipAddress +'\n'+
                                     "Port Number: " + portNum + '\n'+
                                     messageDivider;
+                    String myID = agentPort.get(socket.getPort());
+                    agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                    );
+                    return returnMessage;
                 }
 
                 return returnMessage;
