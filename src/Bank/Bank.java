@@ -6,8 +6,10 @@ import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Messaging.MessageInfo;
 import Messaging.MessageIn;
@@ -16,6 +18,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class Bank {
+
+    // To help with message formatting.
+    private String messageDivider = "-----------------------------\n";
 
     // Variables for Actor communication
     private ServerSocket serverSocket;
@@ -104,10 +109,111 @@ public class Bank {
         throws IOException {
 
         String messageAuthor = newMessage.source.toLowerCase();
-        String returnMessage = "Requestion action was not completed successfully. Please try again";
+        String returnMessage = "Requestion action was not completed successfully. Please try again.";
 
         switch(messageAuthor){
             case "agent":
+                if( !agentPort.containsKey( socket.getPort() ) &&
+                        newMessage.message.equals("create account")){
+                            String newAgentID = "A-" + agentNum;
+                            
+                            agentBal.put (newAgentID, 250);
+                            agentPort.put(socket.getPort(), newAgentID);
+                            agentLink.put(newAgentID, connectionHandler);
+                            agentBlockedFunds.put(newAgentID, 0);
+
+                            agentLink.get(newAgentID).sendMessage(
+                                "Your agent ID is: " + newAgentID
+                            );
+                            agentNum++;
+
+                            returnMessage = messageDivider +
+                                            "New account Created." + '\n' +
+                                            "AgentID: " + newAgentID + '\n' +
+                                            "Account Balance: " + agentBal.get(newAgentID) + '\n' +
+                                            messageDivider;
+                        }
+                else if( !agentPort.containsKey(socket.getPort() )){
+                    returnMessage = messageDivider +
+                                    "No bank account found." +
+                                    "Please create an account with the bank before attempting to interact with the bank" +
+                                    messageDivider;
+                }
+                else if(newMessage.message.contains("current AH connections")){
+                    if(auctionLink.isEmpty()){
+                        returnMessage = messageDivider +
+                                        "No Auction Houses are currently connected to the bank.";
+                    }
+                    else{
+                        returnMessage = messageDivider +
+                                        "The Bank is currently connected to the following Auction Houses:\n";
+
+                                        for(Map.Entry<String, String[]> entry :
+                                            auctionInfo.entrySet()){
+                                            String address = entry.getKey();
+                                            String[] info  = entry.getValue();
+                                            returnMessage += "Auction House  Address: " +
+                                                address + '\n' +
+                                                "Name & Port Number: " +
+                                                Arrays.toString(info) +
+                                                '\n' + messageDivider;
+                                        }
+                    }
+                }
+                else if(newMessage.message.equals("account info")){
+                    String myID = agentPort.get(socket.getPort());
+                    String myPort = String.valueOf(socket.getPort());
+                    String myBal = String.valueOf(agentBal.get(myID));
+                    String myBlocked = String.valueOf(
+                        agentBlockedFunds.get(myID));
+
+                    returnMessage = messageDivider +
+                                    "Agent Information." + '\n'+
+                                    "ID: " + myID + '\n' +
+                                    "Port: " + myPort + '\n' +
+                                    "Account Balance: " + myBal +'\n' +
+                                    "Funds Blocked: " + myBlocked +'\n'+
+                                    messageDivider;
+                }
+                else if(newMessage.message.contains("transfer")){
+                    List<String> messageValues = 
+                        extractValues(newMessage.message);
+
+                    int actionStatus;
+                    int transferAmount;
+                    String auctionID;
+
+                    if(messageValues.size() != 2){
+                        returnMessage = messageDivider +
+                                        "Invalid number of identifiers. " +'\n'+
+                                        "Message should include the Auction House ID and funds amount." +'\n'+
+                                        messageDivider;
+                    }
+                    else{
+                        transferAmount = 
+                            Integer.parseInt(messageValues.get(1));
+                        auctionID = messageValues.get(0);
+
+                        if( blockFunds(
+                            agentPort.get(socket.getPort()),
+                            transferAmount)){
+                            actionStatus = transferFunds(
+                                agentPort.get(socket.getPort()),
+                                auctionID,
+                                transferAmount);
+                            
+                            returnMessage = transferStatus(actionStatus,
+                                                transferAmount,
+                                                agentPort.get(socket.getPort()),
+                                                auctionID);
+
+                            return returnMessage;
+                        }
+                    }
+                    returnMessage += " Error Blocking Funds.\n";
+                }
+
+                return returnMessage;
             case "auction":
             case "bank":
             default:
@@ -116,6 +222,25 @@ public class Bank {
         
     }
         
+    /************ */    
+    private String transferStatus(int actionStatus, int transferAmount, String agent, String auction) {
+        String message;
+
+        switch(actionStatus){
+            case 1:
+                message = messageDivider + '\n'+
+                          "Transfer successful." + '\n'+
+                          "Transferred " + transferAmount +
+                          " from Agent: " + agent + 
+                          " to Auction House: " + auction + ".\n"+
+                          messageDivider;
+                
+
+        }
+
+        return message;
+    }
+
     /************ */
     private void notifyAuction(String auctionID, String newMessage) throws IOException {
         auctionLink.get(auctionID).sendMessage(newMessage);
@@ -167,8 +292,8 @@ public class Bank {
     }
 
     /************ */
-    private boolean transferFunds(String agentID, String auctionID, int transferAmount){
-        boolean actionStatus = false;
+    private int transferFunds(String agentID, String auctionID, int transferAmount){
+        int actionStatus;
 
         if( (transferAmount <= 0) ||
             (transferAmount > agentBal.get(agentID)) ){
@@ -184,7 +309,7 @@ public class Bank {
     }
 
     /************ */
-    private boolean UntransferFunds(String agentID, string auctionID, int transferAmount){
+    private boolean UntransferFunds(String agentID, String auctionID, int transferAmount){
         boolean actionStatus = false;
 
         if( (transferAmount <= 0) ||
@@ -220,13 +345,13 @@ public class Bank {
         return inputValues;
     }
 
-    /************ */
+    /************ *//*
     public HBox bankInfo() {
 
-    }
+    }*/
 
-    /************ */
+    /************ *//*
     public VBox bankConnections(){
 
-    } 
+    } */
 }
