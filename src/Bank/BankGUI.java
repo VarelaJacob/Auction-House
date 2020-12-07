@@ -2,8 +2,10 @@ package Bank;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.function.UnaryOperator;
 
 import Messaging.MessageIn;
@@ -25,15 +27,15 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class BankGUI extends Application {
-    
+
     // Background colors used for various GUI elements.
-    String BACKGROUNDWHITE     = "-fx-background-color: #FFFFFF";
+    String BACKGROUNDWHITE = "-fx-background-color: #FFFFFF";
     String BACKGROUNDUNMCHERRY = "-fx-background-color: #BA0C2F";
     String BACKGROUNDUNMSILVER = "-fx-background-color: #A7A8AA";
-    String BACKGROUNDUNMTURQUOISE = "-fx-background-color: #007a86";    
+    String BACKGROUNDUNMTURQUOISE = "-fx-background-color: #007a86";
 
     // Launch the program.
-    public static void main(String[] args){
+    public static void main(String[] args) {
         launch(args);
     }
 
@@ -42,11 +44,10 @@ public class BankGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 1600, 900);
+        Scene scene = new Scene(bankPane, 1271, 800);
         primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.show();        
+        primaryStage.show();
 
     }
 
@@ -59,7 +60,7 @@ public class BankGUI extends Application {
         UnaryOperator<TextFormatter.Change> filterPortNum = change -> {
             String input = change.getText();
 
-            if( input.matches("[0-9]")) {
+            if (input.matches("[0-9]")) {
                 return change;
             }
 
@@ -76,7 +77,7 @@ public class BankGUI extends Application {
         Label infoLabel2 = new Label("Bank's Port Number:");
         infoLabel2.setTextFill(Color.web("#FFFFFF"));
         infoLabel2.setFont(Font.font("Arial", 20));
-        
+
         // Create Label to display the Bank's IP address.
         Label addressLabel = new Label("N/A");
         addressLabel.setTextFill(Color.web("#FFFFFF"));
@@ -88,10 +89,10 @@ public class BankGUI extends Application {
         portLabel.setFont(Font.font("Arial", 20));
 
         // Create a variable to use the UNM used on the BorderPane.
-        ImageView unmLogo = new ImageView( new Image("file:resources/unmLogo.png"));
+        ImageView unmLogo = new ImageView(new Image("file:resources/unmLogo.png"));
         unmLogo.setFitHeight(133);
         unmLogo.setFitWidth(171);
-        
+
         // Create VBox to store info labels.
         VBox vboxAddress = new VBox();
         vboxAddress.getChildren().addAll(infoLabel1, addressLabel);
@@ -115,7 +116,7 @@ public class BankGUI extends Application {
         hboxStatic.setMaxHeight(150);
         hboxStatic.setSpacing(250);
         hboxStatic.getChildren().addAll(vboxAddress, unmLogo, vboxPort);
-       
+
         // Create Label to identify what to input.
         Label questionLabel2 = new Label("Enter the desired Port Number:");
         questionLabel2.setTextFill(Color.web("#FFFFFF"));
@@ -125,12 +126,59 @@ public class BankGUI extends Application {
         TextField portBox = new TextField();
         portBox.setTextFormatter(portFormatting);
 
+        Thread serverThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Socket socket;
+
+                int portNum = Integer.parseInt(portBox.getText());
+
+                // Server Socket for the Bank.
+                try (ServerSocket serverSocket = new ServerSocket(portNum)) {
+
+                    String ipAddress = String.valueOf(InetAddress.getLocalHost().getHostAddress());
+
+                    addressLabel.setText(ipAddress);
+                    Bank bank = new Bank(ipAddress, portNum);
+
+                    System.out.println("\nBank Successfully created.\nBank information:");
+                    System.out.println("ip address: " + ipAddress);
+                    System.out.println("Port number: " + portNum);
+
+                    while ((socket = serverSocket.accept()) != null) {
+                        new Thread(new MessageIn(socket, bank)).start();
+
+                        System.out.println("New Connection Created");
+                    }
+
+                } catch (IOException exc) {
+                    System.err.print("Unable to connect to port number " + portNum);
+                    System.exit(-1);
+                }
+
+            }
+        });
+
         // Create Button to submit information.
         Button submitBtn = new Button("Create Bank!");
-        submitBtn.setFont(Font.font("Arial",20));
+        submitBtn.setFont(Font.font("Arial", 20));
         submitBtn.setOnMouseClicked(ev -> {
+            String ipAddress = "N/A";
+            
+            try {
+                InetAddress IP = InetAddress.getLocalHost();
+                ipAddress = String.valueOf(IP);
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }          
+
+            addressLabel.setText(ipAddress);
+            portLabel.setText(portBox.getText());
+
             serverThread.start();
         });
+
+        
 
         // Create VBox to get information needed to initialize the bank.
         VBox vboxInitialize = new VBox();
@@ -145,4 +193,5 @@ public class BankGUI extends Application {
         
         return border;
     }
+
 }
