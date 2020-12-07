@@ -46,11 +46,57 @@ public class Agent {
                 bankInfo = stdIn.readLine().split(" ");
 
                 if(bankInfo.length != 2) {
+                    System.out.println("Invalid bank info");
+                }
+                else{
+                    try{
+                        portNum = Integer.parseInt(bankInfo[1]);
 
+                        if(portNum > 65535 ||
+                           portNum < 1){
+                            System.out.println("invalid port num");
+                        }
+                        else{
+                            isBankValid = true;
+                        }
+                    } catch (NumberFormatException e){
+                        System.out.println("invalid port num.");
+                    }                    
                 }
             }
+
+            ipAddress = bankInfo[0];
+            newAgent.bankLink.setHostAndPort(ipAddress, portNum);
+            newAgent.bankLink.outQueue.put(
+                new MessageInfo("agent", "create account", null, 0, 0)
+            );
+            newAgent.bankLink.setAgent(newAgent);
+
+            newAgent.startBankThread();
+
+            String inputStrings;
+
+            while(true){
+                if( (inputStrings = stdIn.readLine()).equals("exit") ){
+                    newAgent.terminateAgent();
+                    continue;
+                }
+                String[] userInput = inputStrings.split(" ");
+
+                newAgent.processOutbox(
+                    userInput[0],
+                    String.join(
+                        " ",
+                        Arrays.copyOfRange(userInput, 1, userInput.length)
+                    )
+                );
+            }
     }
-    
+    /******** */
+    private void startBankThread(){
+        (new Thread((Runnable) bankLink)).start();
+    }
+
     /****** */
     public synchronized void setIsBidding(boolean status){
         isBidding = status;
@@ -98,11 +144,13 @@ public class Agent {
     private void processOutbox(String destination, String message)
             throws InterruptedException, IOException {
         switch (destination.toLowerCase()) {
-            /* If the user types help, display the help menu */
+
+
             case "help":
                 printHelpMenu();
                 break;
-            /* If the user wants to communicate with the bank */
+
+            //
             case "bank":
                 if (message != null) {
                     bankLink.outQueue.put(new MessageInfo(
@@ -114,13 +162,8 @@ public class Agent {
                             "Bank to process");
                 }
                 break;
-            /*
-             * if the user has a general request for an auction house, for
-             * instance, if the user tries to manually connect to an auction
-             * house. Note that this feature is optional and should barely
-             * be used as agents should now be able to connect automatically
-             * to each existing auction house after it connect to the bank.
-             */
+
+                //
             case "auction_house":
                 if (message.equals("connect")){
                     BufferedReader stdIn2 =
@@ -151,12 +194,14 @@ public class Agent {
                     System.out.println("Invalid Auction House Command");
                 }
                 break;
-            /* Any additional information that the user wants is done here */
+            
+            //
             case "bank_port":
-                /* User wants the port number of bank connection */
+                //
                 System.out.println(bankLink.bankPort);
                 break;
-            /* User wants list of AH to which it is current connected */
+
+            //
             case "current":
                 if (message.equals("AH connections")) {
                     System.out.println("Here are the auction houses you are " +
@@ -171,13 +216,10 @@ public class Agent {
                         }
                     }
                 }
-            break;
+                break;
+
             default:
-                /*
-                 * Here, we send messages to unique auction houses via the
-                 * ah- keyword. This keyword represents the ID of an auction
-                 * house in the format AH-int
-                 */
+                //
                 if(destination.toLowerCase().contains("ah-")){
                     try {
                         if ( auctionLink.containsKey(destination) ) {
@@ -186,7 +228,7 @@ public class Agent {
                                     .outQueue
                                     .put(new MessageInfo("agent",
                                             message, null,
-                                            null, 0));
+                                            0, 0));
                         } else {
                             System.out.println("No connection with the given " +
                                     "Auction House exists. " +
