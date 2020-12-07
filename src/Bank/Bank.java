@@ -417,6 +417,37 @@ public class Bank {
                 return returnMessage;
 
             case "bank":
+            String firstWord = newMessage.message.split(" ")[0];
+
+            if(firstWord.equals("delete")){
+                
+                if( agentPort.containsKey(newMessage.portNum)){
+                    String agentID = agentPort.get(newMessage.portNum);
+
+                    agentBal.remove(agentID);
+                    agentBlockedFunds.remove(agentID);
+                    agentPort.remove(newMessage.portNum);
+                    agentLink.remove(agentID);
+
+                    returnMessage = "Agent " + agentID + " has been successfully deleted.";
+                }
+                /**
+                 * Delete Auction House Account.
+                 */
+                else if( auctionPort.containsKey(newMessage.portNum)){
+                    String auctionHouseID = auctionPort.get(newMessage.portNum);
+
+                    auctionBal.remove(auctionHouseID);
+                    auctionInfo.remove(auctionHouseID);
+                    auctionPort.remove(newMessage.portNum);
+                    auctionLink.remove(auctionHouseID);
+
+                    returnMessage = "Auction House " + auctionHouseID + " has been successfully deleted.";
+
+                    String notifyMessage = "The Auction House: " + auctionHouseID + " has been deleted.";
+                    notifyAgents(notifyMessage);
+                }
+            }
             default:
                 return returnMessage;
         }
