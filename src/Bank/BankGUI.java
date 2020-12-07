@@ -52,7 +52,7 @@ public class BankGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 1271, 300);
+        Scene scene = new Scene(bankPane, 971, 300);
         primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -123,7 +123,7 @@ public class BankGUI extends Application {
         hboxStatic.setStyle(BACKGROUNDWHITE);
         hboxStatic.setAlignment(Pos.CENTER);
         hboxStatic.setMaxHeight(150);
-        hboxStatic.setSpacing(250);
+        hboxStatic.setSpacing(100);
         hboxStatic.getChildren().addAll(vboxAddress, unmLogo, vboxPort);
 
         // Create Label to identify what to input.
@@ -208,8 +208,13 @@ public class BankGUI extends Application {
         submitBtn.setFont(Font.font("Arial", 20));
         submitBtn.setOnMouseClicked(ev -> {
 
-            isCreated = false;   
-            serverThread.start();
+            isCreated = false; 
+            if(portBox.getText().trim().isEmpty()){
+
+            }  
+            else{
+                serverThread.start();
+            }
 
         });
 
