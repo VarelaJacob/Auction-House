@@ -8,7 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class MessageIn {
+public class MessageIn implements Runnable{
 
     private Socket socket;
     private Bank bank;
@@ -63,10 +63,10 @@ public class MessageIn {
             MessageInfo inputMessage;
             while( (inputMessage = (MessageInfo) inputStream.readObject()) != null) {
                 if( source.equals("Bank") ){
-                    bank.handleMessage(newMessage, socket, this);
+                    bank.handleMessage(inputMessage, socket, this);
                 }
                 else if( source.equals("auction") {
-                    auction.handleMessage(newMessage, socket, this);
+                    auction.handleMessage(inputMessage, socket, this);
                 }
                 
                 outStream.writeObject(
@@ -74,7 +74,18 @@ public class MessageIn {
                 );
             }
             socket.close();
-        }
+        } catch (IOException | ClassNotFoundException | InterruptedException e){
+            if( source.equals("Bank")){
+                System.out.println("Connection Lost." +
+                                   "Try the command 'bank info' for more information.");
+                try {
+                    bank.handleMessage(
+                        new MessageInfo("bank", "delete", null, 0,socket.getPort()), socket, this);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } 
     }
 
 }
