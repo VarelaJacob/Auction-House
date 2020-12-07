@@ -17,9 +17,6 @@ import java.util.Map;
 import Messaging.MessageInfo;
 import Messaging.MessageIn;
 
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-
 public class Bank {
 
     // To help with message formatting.
@@ -600,14 +597,4 @@ public class Bank {
 
         return inputValues;
     }
-
-    /************ *//*
-    public HBox bankInfo() {
-
-    }*/
-
-    /************ *//*
-    public VBox bankConnections(){
-
-    } */
 }
