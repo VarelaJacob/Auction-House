@@ -1,8 +1,11 @@
 package Bank;
 
 import java.io.ObjectOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -99,8 +102,34 @@ public class Bank {
     }
 
     /************ */
-    private static void main(String[] args){
+    public static void main(String[] args) throws IOException {
+        System.out.println("\nPlease type the Port number you would like to use for the bank:");
+        BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 
+        String[] inputText = userInput.readLine().split(" ");
+
+        int portNum = Integer.parseInt(inputText[0]);
+        Socket socket;
+
+        /** Server Socket for the Bank. */
+        try (ServerSocket serverSocket = new ServerSocket(portNum)) {
+            String ipAddress = String.valueOf( InetAddress.getLocalHost().getHostAddress() );
+            Bank bank = new Bank(ipAddress, portNum);
+
+            System.out.println("\nBank Successfully created.\nBank information:");
+            System.out.println("ip address: " + ipAddress);
+            System.out.println("Port number: " + portNum);
+
+            while ((socket = serverSocket.accept()) != null) {
+                new Thread( new MessageIn(socket, bank)).start();
+
+                System.out.println("New Connection Created");
+            }
+
+        } catch (IOException e) {
+            System.err.print("Unable to connect to port number " + portNum);
+            System.exit(-1);
+        }
     }
 
     /************ */
@@ -212,6 +241,13 @@ public class Bank {
                     }
                     returnMessage += " Error Blocking Funds.\n";
                 }
+                else if(newMessage.message.contains("bank info")){
+                    returnMessage = messageDivider +
+                                    "Bank information:" +'\n'+
+                                    "ip address: " + ipAddress +'\n'+
+                                    "Port Number: " + portNum + '\n'+
+                                    messageDivider;
+                }
 
                 return returnMessage;
             case "auction":
@@ -222,20 +258,39 @@ public class Bank {
         
     }
         
-    /************ */    
-    private String transferStatus(int actionStatus, int transferAmount, String agent, String auction) {
-        String message;
+    /**
+     * @throws IOException**********
+     */
+    private String transferStatus(int actionStatus, int transferAmount, String agent, String auction)
+            throws IOException {
+        String message = "";
 
         switch(actionStatus){
             case 1:
-                message = messageDivider + '\n'+
+                message = messageDivider +
                           "Transfer successful." + '\n'+
                           "Transferred " + transferAmount +
                           " from Agent: " + agent + 
                           " to Auction House: " + auction + ".\n"+
                           messageDivider;
                 
+                notifyAuction(auction, message);
+            
+            case -2:
+                message = messageDivider +
+                          "Transfer Unsuccessful." +'\n'+
+                          "Not enough funds in the Agent's account to transfer."+
+                          '\n' + messageDivider;
+            
+            case -3:
+                message = messageDivider +
+                          "Transfer Unsuccessful." +'\n'+
+                          "The Agent requested a transfer of $0 or less."+
+                          '\n' + messageDivider;
 
+            default:
+                message = messageDivider +
+                          "Transfer Unsuccessful.";
         }
 
         return message;
@@ -293,17 +348,22 @@ public class Bank {
 
     /************ */
     private int transferFunds(String agentID, String auctionID, int transferAmount){
-        int actionStatus;
+        int actionStatus = 0;
 
-        if( (transferAmount <= 0) ||
-            (transferAmount > agentBal.get(agentID)) ){
+        if(transferAmount <= 0){
+            actionStatus = -3;
+            return actionStatus;
+        }
+
+        if(transferAmount > agentBal.get(agentID)){
+            actionStatus = -2;
             return actionStatus;
         }
 
         agentBlockedFunds.replace(agentID, agentBlockedFunds.get(agentID) - transferAmount);
         auctionBal.replace(auctionID, auctionBal.get(auctionID) + transferAmount);
 
-        actionStatus = true;
+        actionStatus = 1;
 
         return actionStatus;
     }
