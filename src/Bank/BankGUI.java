@@ -1,7 +1,12 @@
 package Bank;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.function.UnaryOperator;
 
+import Messaging.MessageIn;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener.Change;
 import javafx.geometry.Pos;
@@ -35,11 +40,10 @@ public class BankGUI extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
-
         BorderPane bankPane = createBorderPane();
 
         Scene scene = new Scene(bankPane, 1600, 900);
+        primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();        
@@ -51,6 +55,7 @@ public class BankGUI extends Application {
         // Create new BorderPane.
         BorderPane border = new BorderPane();
 
+        // Creates formatting to only allow integers for the text input field.
         UnaryOperator<TextFormatter.Change> filterPortNum = change -> {
             String input = change.getText();
 
@@ -60,22 +65,7 @@ public class BankGUI extends Application {
 
             return null;
         };
-
-        UnaryOperator<TextFormatter.Change> filterAddress = change -> {
-            String input = change.getText();
-
-            if( input.matches("[0-9]")) {
-                return change;
-            }
-            if( input.matches("[.]")) {
-                return change;
-            }
-
-            return null;
-        };
-
         TextFormatter<String> portFormatting = new TextFormatter<>(filterPortNum);
-        TextFormatter<String> addressFormatting = new TextFormatter<>(filterAddress);
 
         // Create Label to Identify the Bank's IP address.
         Label infoLabel1 = new Label("Bank's IP Address:");
@@ -92,7 +82,7 @@ public class BankGUI extends Application {
         addressLabel.setTextFill(Color.web("#FFFFFF"));
         addressLabel.setFont(Font.font("Arial", 20));
 
-        // Create Label to display the Bank's IP address.
+        // Create Label to display the Bank's Port Number.
         Label portLabel = new Label("N/A");
         portLabel.setTextFill(Color.web("#FFFFFF"));
         portLabel.setFont(Font.font("Arial", 20));
@@ -118,7 +108,6 @@ public class BankGUI extends Application {
         vboxPort.setMinWidth(300);
         vboxPort.setSpacing(25);
 
-
         // Create HBox to store the Bank info and UNM Logo.
         HBox hboxStatic = new HBox();
         hboxStatic.setStyle(BACKGROUNDWHITE);
@@ -126,47 +115,29 @@ public class BankGUI extends Application {
         hboxStatic.setMaxHeight(150);
         hboxStatic.setSpacing(250);
         hboxStatic.getChildren().addAll(vboxAddress, unmLogo, vboxPort);
-
-        // Create Label to identify what to input.
-        Label questionLabel1 = new Label("Enter the Bank's IP Address:");
-        questionLabel1.setTextFill(Color.web("#FFFFFF"));
-        questionLabel1.setFont(Font.font("Arial", 20));
-        
+       
         // Create Label to identify what to input.
         Label questionLabel2 = new Label("Enter the desired Port Number:");
         questionLabel2.setTextFill(Color.web("#FFFFFF"));
         questionLabel2.setFont(Font.font("Arial", 20));
 
-        // Create Text Field to get the Bank's IP Address
-        TextField addressBox = new TextField();
-        addressBox.setTextFormatter(addressFormatting);
-
         // Create Text Field to get the Bank's Port Number
         TextField portBox = new TextField();
         portBox.setTextFormatter(portFormatting);
 
-        // Create HBox to store the info for question #1.
-        HBox hboxLine1 = new HBox();
-        hboxLine1.setSpacing(25);
-        hboxLine1.setAlignment(Pos.CENTER);
-        hboxLine1.getChildren().addAll(questionLabel1, addressBox);
-
-        // Create HBox to store the info for question #2.
-        HBox hboxLine2 = new HBox();
-        hboxLine2.setSpacing(25);
-        hboxLine2.setAlignment(Pos.CENTER);
-        hboxLine2.getChildren().addAll(questionLabel2, portBox);
-
         // Create Button to submit information.
         Button submitBtn = new Button("Create Bank!");
         submitBtn.setFont(Font.font("Arial",20));
+        submitBtn.setOnMouseClicked(ev -> {
+            serverThread.start();
+        });
 
         // Create VBox to get information needed to initialize the bank.
         VBox vboxInitialize = new VBox();
         vboxInitialize.setStyle(BACKGROUNDUNMTURQUOISE);
         vboxInitialize.setAlignment(Pos.CENTER);
         vboxInitialize.setSpacing(25);
-        vboxInitialize.getChildren().addAll(hboxLine1, hboxLine2, submitBtn);
+        vboxInitialize.getChildren().addAll( questionLabel2, portBox, submitBtn);
 
         // Add the final elements to the BorderPane.
         border.setTop(hboxStatic);
