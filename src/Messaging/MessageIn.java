@@ -27,5 +27,26 @@ public class MessageIn {
         outStream   = new ObjectOutputStream(socket.getOutputStream());
         inputStream = new ObjectInputStream(socket.getInputStream()) ;
     }
-    
+
+    /******** */
+    private void setVar(Object reference){
+        
+        if( reference instanceof Bank){
+            bank = (Bank) reference;
+            source = "Bank";
+            returnMessage = "Successfully established a connection with the Bank";
+        }
+        else if(reference instanceof AuctionHouse){
+            auction = (AuctionHouse) reference;
+            source = "auction";
+            returnMessage = "Successfully established a connection with the Auction House.";
+        }
+    }
+
+    /******* */
+    public void sendMessage(String newMessage) throws IOException {
+        outStream.writeObject(new MessageInfo(source, newMessage, null, 0, 0));
+    }
+
+
 }
