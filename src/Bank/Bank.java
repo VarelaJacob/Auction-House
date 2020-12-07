@@ -139,18 +139,15 @@ public class Bank {
 
         switch(messageAuthor){
             case "agent":
+      
                 if( !agentPort.containsKey( socket.getPort() ) &&
                         newMessage.message.equals("create account")){
                             String newAgentID = "A-" + agentNum;
-                            
                             agentBal.put (newAgentID, 250);
                             agentPort.put(socket.getPort(), newAgentID);
                             agentLink.put(newAgentID, connectionHandler);
                             agentBlockedFunds.put(newAgentID, 0);
 
-                            agentLink.get(newAgentID).sendMessage(
-                                "Your agent ID is: " + newAgentID
-                            );
                             agentNum++;
 
                             returnMessage = messageDivider +
@@ -158,6 +155,10 @@ public class Bank {
                                             "AgentID: " + newAgentID + '\n' +
                                             "Account Balance: " + agentBal.get(newAgentID) + '\n' +
                                             messageDivider;
+                            agentLink.get(newAgentID).sendMessage(
+                                '\n'+returnMessage
+                            );
+                            return returnMessage;
                         }
                 else if( !agentPort.containsKey(socket.getPort() )){
                     returnMessage = messageDivider +
@@ -413,7 +414,7 @@ public class Bank {
 
                 return returnMessage;
 
-            case "bank":
+            case "Bank":
             String firstWord = newMessage.message.split(" ")[0];
 
             if(firstWord.equals("delete")){

@@ -68,7 +68,7 @@ public class Agent {
             ipAddress = bankInfo[0];
             newAgent.bankLink.setHostAndPort(ipAddress, portNum);
             newAgent.bankLink.outQueue.put(
-                new MessageInfo("agent", "create account", null, 0, 0)
+                new MessageInfo("create account","agent", null, 0, 0)
             );
             newAgent.bankLink.setAgent(newAgent);
 
@@ -154,8 +154,10 @@ public class Agent {
             case "bank":
                 if (message != null) {
                     bankLink.outQueue.put(new MessageInfo(
+                            message, 
                             "agent",
-                            message, null, null,
+                            null,
+                            0,
                             0));
                 } else {
                     System.out.println("Please give a valid command for the " +
@@ -226,8 +228,10 @@ public class Agent {
                             auctionLink
                                     .get(destination)
                                     .outQueue
-                                    .put(new MessageInfo("agent",
-                                            message, null,
+                                    .put(new MessageInfo(
+                                            message,
+                                            "agent",
+                                            null,
                                             0, 0));
                         } else {
                             System.out.println("No connection with the given " +
