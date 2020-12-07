@@ -254,5 +254,43 @@ public class Agent {
     }
 
     private void printHelpMenu() {
+        System.out.println("\nWelcome to The Help Panel\n");
+        System.out.println("Bank Services:");
+        System.out.println("Command to use\t\t\t\t\t\t\tDescription");
+        System.out.println("bank account " +
+                "info\t\t\t\t\t\tRequest information concerning your " +
+                "bank" +
+                " account, balance " +
+                "and ID");
+        System.out.println("bank current AH " +
+                "connections\t\t\t\t\tRequest" +
+                " ID, Address and Port # of all Auction Houses " +
+                "currently connected to the Bank");
+        System.out.println("bank transfer <auctionId> " +
+                "<amount>\t\t\t\tRequest the Bank to transfer <amount> " +
+                "to <auctionId> auction");
+        System.out.println("\nAuction House Services:");
+        System.out.println("Command to use\t\t\t\t\t\t\tDescription");
+        System.out.println("<auctionID> <items selling>\t\t\t\t\tTo " +
+                "request the list of items sold by Auction House" +
+                "<auctionID>");
+        System.out.println("<auctionID> bid <ItemID> <agentID> " +
+                "<amount>\t\t\t\tPlace a bid of <amound> on <ItemID> " +
+                "at Auction House <auctionID>");
+        System.out.println("auction_house connect\t\t\t\t\t\tPerform a " +
+                "manual connection to an Auction House" +
+                ".\n\t\t\t\t\t\t\t\t" +
+                "Note that " +
+                "this command is strictly optional and should in " +
+                "general cases not be used since connections to " +
+                "Auction Houses will be automatic");
+        System.out.println("\nAgent Services:");
+        System.out.println("Command to use\t\t\t\t\t\t\tDescription");
+        System.out.println("bank_port\t\t\t\t\t\t\tGet the port " +
+                "number on " +
+                "which you are connected with the Bank");
+        System.out.println("current AH connections\t\t\t\t\t\tGet the " +
+                "name of all the Auction Houses to which you are " +
+                "currently connected");
     }
 }
