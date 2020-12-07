@@ -1,5 +1,6 @@
 package Bank;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -10,6 +11,7 @@ import java.util.function.UnaryOperator;
 
 import Messaging.MessageIn;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener.Change;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -28,6 +30,12 @@ import javafx.stage.Stage;
 
 public class BankGUI extends Application {
 
+    // Global variable to identify if the bank was created successfully.
+    boolean isCreated;
+    
+    // Counter to limit the port number to 5 digits.
+    public int counter = 0;
+
     // Background colors used for various GUI elements.
     String BACKGROUNDWHITE = "-fx-background-color: #FFFFFF";
     String BACKGROUNDUNMCHERRY = "-fx-background-color: #BA0C2F";
@@ -44,23 +52,24 @@ public class BankGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 1271, 800);
+        Scene scene = new Scene(bankPane, 1271, 300);
         primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
         primaryStage.show();
 
     }
-
+    
     private BorderPane createBorderPane() {
 
         // Create new BorderPane.
-        BorderPane border = new BorderPane();
+        BorderPane border = new BorderPane();       
 
         // Creates formatting to only allow integers for the text input field.
         UnaryOperator<TextFormatter.Change> filterPortNum = change -> {
             String input = change.getText();
 
-            if (input.matches("[0-9]")) {
+            if (input.matches("[0-9]") && counter < 5) {
+                counter++;
                 return change;
             }
 
@@ -118,9 +127,9 @@ public class BankGUI extends Application {
         hboxStatic.getChildren().addAll(vboxAddress, unmLogo, vboxPort);
 
         // Create Label to identify what to input.
-        Label questionLabel2 = new Label("Enter the desired Port Number:");
-        questionLabel2.setTextFill(Color.web("#FFFFFF"));
-        questionLabel2.setFont(Font.font("Arial", 20));
+        Label adjustableLabel = new Label("Enter the desired Port Number:");
+        adjustableLabel.setTextFill(Color.web("#FFFFFF"));
+        adjustableLabel.setFont(Font.font("Arial", 20));
 
         // Create Text Field to get the Bank's Port Number
         TextField portBox = new TextField();
@@ -138,24 +147,59 @@ public class BankGUI extends Application {
 
                     String ipAddress = String.valueOf(InetAddress.getLocalHost().getHostAddress());
 
-                    addressLabel.setText(ipAddress);
                     Bank bank = new Bank(ipAddress, portNum);
 
-                    System.out.println("\nBank Successfully created.\nBank information:");
-                    System.out.println("ip address: " + ipAddress);
-                    System.out.println("Port number: " + portNum);
+                    isCreated = true;
+                    Platform.runLater(() -> {
+                        updateGUI(ipAddress, portNum);
+                    });
 
                     while ((socket = serverSocket.accept()) != null) {
+
                         new Thread(new MessageIn(socket, bank)).start();
 
                         System.out.println("New Connection Created");
                     }
 
                 } catch (IOException exc) {
-                    System.err.print("Unable to connect to port number " + portNum);
-                    System.exit(-1);
+
+                    Platform.runLater(() -> {
+                        updateGUI("Error", -1);
+                    });
                 }
 
+            }
+
+            private void updateGUI(String ipAddress, int portNum) {
+                
+                if(isCreated){
+                    String port = Integer.toString(portNum);
+                    addressLabel.setText(ipAddress);
+                    portLabel.setText(port);
+                    adjustableLabel.setText("The bank has been created successfully!");
+                    adjustableLabel.setFont(Font.font("Arial", 40));
+
+                    VBox fillBox = new VBox(adjustableLabel);
+                    fillBox.setStyle(BACKGROUNDUNMTURQUOISE);
+                    fillBox.setAlignment(Pos.CENTER);
+                    
+                    border.setCenter(fillBox);
+                }
+                else{
+                    adjustableLabel.setText("The bank has not been successfully created."+
+                    "\n Please close this application and try again.");
+                    adjustableLabel.setFont(Font.font("Arial", 40));
+                    adjustableLabel.setStyle(BACKGROUNDUNMCHERRY);
+                    
+                    vboxAddress.setStyle(BACKGROUNDWHITE);
+                    vboxPort.setStyle(BACKGROUNDWHITE);
+                    
+                    VBox errorBox = new VBox(adjustableLabel);
+                    errorBox.setStyle(BACKGROUNDUNMCHERRY);
+                    errorBox.setAlignment(Pos.CENTER);
+
+                    border.setCenter(errorBox);
+                }
             }
         });
 
@@ -163,19 +207,10 @@ public class BankGUI extends Application {
         Button submitBtn = new Button("Create Bank!");
         submitBtn.setFont(Font.font("Arial", 20));
         submitBtn.setOnMouseClicked(ev -> {
-            String ipAddress = "N/A";
-            
-            try {
-                InetAddress IP = InetAddress.getLocalHost();
-                ipAddress = String.valueOf(IP);
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }          
 
-            addressLabel.setText(ipAddress);
-            portLabel.setText(portBox.getText());
-
+            isCreated = false;   
             serverThread.start();
+
         });
 
         
@@ -185,7 +220,7 @@ public class BankGUI extends Application {
         vboxInitialize.setStyle(BACKGROUNDUNMTURQUOISE);
         vboxInitialize.setAlignment(Pos.CENTER);
         vboxInitialize.setSpacing(25);
-        vboxInitialize.getChildren().addAll( questionLabel2, portBox, submitBtn);
+        vboxInitialize.getChildren().addAll( adjustableLabel, portBox, submitBtn);
 
         // Add the final elements to the BorderPane.
         border.setTop(hboxStatic);
