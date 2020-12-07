@@ -250,7 +250,172 @@ public class Bank {
                 }
 
                 return returnMessage;
+
             case "auction":
+                String auctionID = auctionPort.get(socket.getPort());
+
+                if(newMessage.message.equals("create account")){
+                    if(auctionPort.containsKey(socket.getPort())){
+                        returnMessage = messageDivider +
+                                        "An account for this Auction House already exists." +'\n'+
+                                        "Please try another command." +
+                                        messageDivider;
+                    }
+                    else {
+                        String auctionHouseID = "AH-" + auctionNum;
+                        String newConnection;
+
+                        auctionBal.put(auctionHouseID, 0);
+                        auctionPort.put(socket.getPort(), auctionHouseID);
+                        auctionLink.put(auctionHouseID, connectionHandler);
+                        auctionInfo.put(auctionHouseID, new String[]{
+                            newMessage.AHAddress,
+                            Integer.toString(newMessage.AHPort)});
+                        auctionNum++;
+                        
+                        newConnection = messageDivider + 
+                                        "A new Auction House has connected to the Bank!" + '\n'+
+                                        "Auction House ID: " + auctionHouseID +'\n'+
+                                        "Auction House Port: " + newMessage.AHPort +'\n'+
+                                        "Auction House Address: " +
+                                        newMessage.AHAddress + '\n'+
+                                        messageDivider;
+
+                        notifyAgents(newConnection);
+
+                        returnMessage = messageDivider +
+                                        "A new Auction House has connected to the Bank!"+'\n'+
+                                        "Auction House ID: " + auctionHouseID +'\n'+
+                                        "Auction House Port: " + newMessage.AHPort +'\n'+
+                                        "Auction House Address: " +
+                                        newMessage.AHAddress +'\n'+
+                                        "Auction House Balance: " +
+                                        auctionBal.get(auctionHouseID) +'\n'+
+                                        messageDivider;
+                    }
+                }
+                else if( !auctionPort.containsKey(socket.getPort())){
+                    returnMessage = messageDivider +
+                                    "No Auction House account found." + '\n'+
+                                    "Please create an account with the bank before attempting to interact with the bank."
+                                    +'\n'+messageDivider;
+                }
+                else if(newMessage.message.contains("checkID")){
+                    String [] messageWords = newMessage.message.split(" ");
+                    String agendID = messageWords[1];
+
+                    if(agentBal.containsKey(agendID)){
+                        returnMessage = messageDivider +
+                                        "The agend ID: " + agendID +
+                                        "is a valid agent account." +'\n'+
+                                        messageDivider;
+                    }
+                    else{
+                        returnMessage = messageDivider +
+                                        "The agend ID: " + agendID +
+                                        "is not a valid agent account." +'\n'+
+                                        messageDivider;
+                    }
+                }
+                else if(newMessage.message.contains("block funds")){
+                    List<String> messageValues = extractValues(newMessage.message);
+
+                    if( messageValues.size() != 2){
+                        returnMessage = "Invalid number of identifiers." + '\n' +
+                                "Message should include Agent ID " +
+                                "and funds amount to be blocked.";
+                    }
+                    else {
+                        String agentID = messageValues.get(0);
+                        int amountToBlock = (int)(Float.parseFloat(messageValues.get(1)));
+
+                        if( agentBal.get(agentID) > amountToBlock){
+                            blockFunds(agentID, amountToBlock);
+                            notifyAuction( auctionID, "Valid Bid. Successfully blocked funds.");
+                            returnMessage = "Funds were successfully blocked. Bid successful." + '\n' +
+                                    "Blocked " + messageValues.get(1) + " from " +
+                                    "agent: " + agentID;
+                        }
+                        else {
+                            notifyAuction(auctionID, "Invalid Bid. Unsuccessfully blocked funds.");
+                            returnMessage = "Error blocking funds. Invalid bid.";
+                        }
+                    }
+                }
+                else if(newMessage.message.contains("release funds")){
+                    List<String> messageValues = extractValues(newMessage.message);
+
+                    if( messageValues.size() != 2) {
+                        returnMessage = "Invalid number of identifiers." + '\n' +
+                                        "Message should include Agent ID and amount of funds to release.";
+                    }
+                    else {
+                        if( agentBlockedFunds.get(messageValues.get(0)) >= (int)(Float.parseFloat(messageValues.get(1))) ){
+                            unBlockFunds( messageValues.get(0), (int)(Float.parseFloat(messageValues.get(1)))) ;
+                            notifyAuction(auctionID, "Successfully released funds.");
+                            returnMessage = "Agent " + messageValues.get(0) + " has had the amount of " +
+                                            messageValues.get(1) + " funds released.";
+                        }
+                        else {
+                            notifyAuction(auctionID, "Unsuccessfully released funds.");
+                            returnMessage = "Error releasing the funds from Agent " + messageValues.get(0);
+                        }
+                    }
+                }
+                else if(newMessage.message.contains("transfer funds")){
+                    List<String> messageValues = extractValues(newMessage.message);
+
+                    if(messageValues.size() != 2){
+                        returnMessage = messageDivider+
+                                        "Invalid number of identifiers.\n" +
+                                        "Message should include Agent ID, and amount of funds."
+                                        +'\n'+messageDivider;
+                    }
+                    else {
+                        String agentID = messageValues.get(0);
+                        int amountToTransfer = (int)(Float.parseFloat(messageValues.get(1)));
+
+                        if( transferFunds(agentID, auctionID, amountToTransfer) == 1) {
+                            transferFunds(agentID, auctionID, amountToTransfer);
+                            notifyAuction(auctionID, "Successfully transfered funds.");
+                            notifyAuction(auctionID, auctionID + " account balance = " + amountToTransfer);
+                            returnMessage = "Funds successfully transferred." + '\n' +
+                                            "Transferred " + amountToTransfer +
+                                            "from " + agentID + "to " + auctionID;
+                        }
+                    }
+                }
+                else if(newMessage.message.contains("untransfer funds")){
+                    List<String> messageValues = extractValues(newMessage.message);
+
+                    if( messageValues.size() != 2){
+                        returnMessage = messageDivider +
+                                        "Invalid number of identifiers." + '\n' +
+                                        "Message should include Agent ID, and amount of funds."
+                                        +'\n'+messageDivider;
+                    }
+                    else {
+                        String agentID = messageValues.get(0);
+                        int amountToTransfer = (int)(Float.parseFloat(messageValues.get(1)));
+
+                        if( unTransferFunds(agentID, auctionID, amountToTransfer) ){
+                            unTransferFunds(agentID, auctionID, amountToTransfer);
+                            notifyAuction(auctionID, "Successfully untransfered funds.");
+                            returnMessage = messageDivider+
+                                            "Funds successfully untransferred." + '\n' +
+                                            "Transferred " + amountToTransfer +
+                                            "from " + auctionID + "to " + agentID
+                                            +'\n'+messageDivider;
+                        }
+                        else {
+                            notifyAuction(auctionID, "Unsuccessfully untransfered funds.");
+                            returnMessage = "Funds were NOT transferred.";
+                        }
+                    }
+                }
+
+                return returnMessage;
+
             case "bank":
             default:
                 return returnMessage;
@@ -369,7 +534,7 @@ public class Bank {
     }
 
     /************ */
-    private boolean UntransferFunds(String agentID, String auctionID, int transferAmount){
+    private boolean unTransferFunds(String agentID, String auctionID, int transferAmount){
         boolean actionStatus = false;
 
         if( (transferAmount <= 0) ||
