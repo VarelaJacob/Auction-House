@@ -87,7 +87,7 @@ public class MessageOut implements Runnable{
             throws IOException, InterruptedException {
                 
                 if(auction != null){
-//                    auction.processBankInfo(currMessage);
+                    auction.processBankInfo(currMessage);
                 }
                 else if(currMessage.message.contains("YourIDis ") &&
                         agent != null){
@@ -110,7 +110,7 @@ public class MessageOut implements Runnable{
                 )){
                     agent.setIsBidding(false);
                 }
-// altered from line 280                
+                             
                 else if(currMessage.message.contains(
                         "A new auction house has been created")){
                     connectNewAuction(currMessage.message);
