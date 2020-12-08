@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.function.UnaryOperator;
 
 import Agent.Agent;
@@ -43,6 +44,9 @@ public class AuctionHouseGUI extends Application {
     // Create instances of Bank and Auction House.
     AuctionHouse auctionHouse;
     Bank bank;
+
+    // String of this objects ID.
+    String auctionID;
 
     /*
      * The HashMap key is a port Number.
@@ -313,7 +317,34 @@ public class AuctionHouseGUI extends Application {
         return border;
     }
     
-    
+    public void populateList(int n) {
+        Random rand = new Random();
+        if(currItems.size() < n) {
+            int limit = MAXITEMS - currItems.size();
+            int randInt = ((rand.nextInt(limit)) + 1);
+
+            for(int i = 0; i < randInt; i++) {
+                int chose = rand.nextInt(items.items.size());
+                Item item = new Item(items.items.get(chose).getName(),
+                        (int) items.items.get(chose).getMinBid(), auctionID);
+                currItems.add(item);
+            }
+        }
+        auctionHouse.setCurrList(currItems);
+    }
+
+    public void populateList() {
+        Random rand = new Random();
+        if(currItems.size() < 4) {
+
+            for(int i = 0; i < 4; i++) {
+                int chose = rand.nextInt(items.items.size());
+                currItems.add(items.items.get(chose));
+            }
+        }
+        auctionHouse.setCurrList(currItems);
+    }
+
 
     private class AuctionProxy implements Runnable {
 
@@ -322,7 +353,7 @@ public class AuctionHouseGUI extends Application {
             try(ServerSocket server = auctionHouse.getServer()){
                 Socket s;
                 
-                while( (s = ss.accept()) != null){
+                while( (s = server.accept()) != null){
                     new Thread( new MessageIn(s, auctionHouse)).start();
                 }
             } catch (IOException e){
