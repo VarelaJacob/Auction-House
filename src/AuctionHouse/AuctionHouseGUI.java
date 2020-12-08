@@ -1,12 +1,17 @@
 package AuctionHouse;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.Scanner;
 import java.util.function.UnaryOperator;
 
 import Agent.Agent;
@@ -14,6 +19,7 @@ import Bank.Bank;
 
 import Messaging.MessageInfo;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -66,6 +72,9 @@ public class AuctionHouseGUI extends Application {
     String BACKGROUNDUNMCHERRY = "-fx-background-color: #BA0C2F";
     String BACKGROUNDUNMSILVER = "-fx-background-color: #A7A8AA";
     String BACKGROUNDUNMTURQUOISE = "-fx-background-color: #007a86";  
+
+    // Create VBox to store the items for sale.
+    private VBox vboxItems = new VBox();
 
     // Counter to limit the port number to 5 digits.
     public int counter1 = 0;
@@ -310,11 +319,110 @@ public class AuctionHouseGUI extends Application {
         hboxInit.setSpacing(25);
         hboxInit.getChildren().addAll(vboxInit1, vboxInit2, vboxInit3);
 
+        // Format the items VBox.
+        vboxItems.setStyle(BACKGROUNDUNMTURQUOISE);
+        vboxItems.setAlignment(Pos.CENTER);
+
         border.setTop(hboxStatic);
         border.setLeft(vboxButtons);
         border.setCenter(hboxInit);
 
+        connectBtn.setOnMouseClicked( e -> {
+
+            isConnected = false; 
+            String bankAddress = "N/A";
+            String ip = "N/A";
+            String bankP = "N/A";
+            String auctionP = "N/A";
+
+            if(bankAddressBox.getText().trim().isEmpty() |
+               bankPortBox.getText().trim().isEmpty() |
+               auctionPortBox.getText().trim().isEmpty()
+            ){
+
+            }  
+            else{
+                ip = "";
+                
+                try{
+                    ip = InetAddress.getLocalHost().getHostAddress();
+                } catch (UnknownHostException ex) {
+                    ex.printStackTrace();
+                }
+
+                bankAddress = bankAddressBox.getText();
+                int bankPort = Integer.parseInt(bankPortBox.getText());
+                int auctionPort = Integer.parseInt(auctionPortBox.getText());
+
+                auctionHouse = 
+                    new AuctionHouse(bankAddress, bankPort, auctionPort);
+                
+                auctionHouse.bankLink.setHostAndPort(bankAddress, bankPort);
+
+                try {
+                    auctionHouse.bankLink.outQueue.put(new
+                        MessageInfo("create account", "auction_house", ip, auctionPort, 0));
+                        isConnected = true;
+                        bankP = Integer.toString(bankPort);
+                        auctionP = Integer.toString(auctionPort);
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+            if(isConnected){
+            agentPort = new HashMap<>();
+            auctionHouse.setIsConnected(true);
+            connectBtn.setDisable(true);
+            disconnectBtn.setDisable(false);
+
+            bankAddressLabel2.setText(bankAddress);
+            bankPortLabel2.setText(bankP);
+            auctionLabel2.setText(ip);
+            auctionLabel4.setText(auctionP);
+
+            Scanner s = null;
+
+            try {
+                s = new Scanner(new File("resources/items.txt"));
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+
+            items = new Items(s, auctionID);
+            populateList();
+            updateList();
+            
+            Thread auctionThread = new Thread(
+                new AuctionProxy()
+            );
+            auctionThread.start();
+
+            Thread time = new Thread(
+                new Timer()
+            );
+            time.start();
+
+            //vboxItems 
+            Thread linkThread = new Thread(
+                auctionHouse.bankLink
+            );
+            linkThread.start();}
+        });
+
         return border;
+    }
+
+    public void updateList() {
+        
+        Platform.runLater(() ->{
+            vboxItems.getChildren().clear();
+
+            for(Item i : currItems){
+                Label temp = new Label(i.toString());
+                vboxItems.getChildren().add(temp);
+            }
+        });
     }
     
     public void populateList(int n) {
@@ -375,11 +483,11 @@ public class AuctionHouseGUI extends Application {
 
                     if(i.getTimeLeft() == 0){
                         IDs.add(i.getItem());
-                        try {
+/*                        try {
                             getResult(i);
                         } catch (InterruptedException e){
                             e.printStackTrace();
-                        }
+                        }*/
                     }
 
                     i.updateTime(curr);
@@ -391,7 +499,7 @@ public class AuctionHouseGUI extends Application {
                     int n = IDs.size();
                     
                     isConnected = false;
-                    deleteUnsold(IDs);
+//                    deleteUnsold(IDs);
                     updateList();
                     
                     IDs = new ArrayList<>();
