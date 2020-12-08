@@ -17,6 +17,14 @@ import java.util.Map;
 import Messaging.MessageInfo;
 import Messaging.MessageIn;
 
+/**
+ * This class creates a new bank. When a new Auction House or 
+ * Agent connects to the bank it will create their respective
+ * account and store their information appropriately. It will
+ * also handle any requests/transactions from any client.
+ * 
+ * @author Jacob Varela
+ */
 public class Bank {
 
     // To help with message formatting.
@@ -98,7 +106,18 @@ public class Bank {
         auctionNum = 1;
     }
 
-    /************ */
+    /**
+     * This method will parse the newMessage to identify who the message
+     * is coming from, what they want the message to execute, and it will
+     * execute it if it is a valid command but not otherwise. May return
+     * and/or send reply messages or messages to other Actors. 
+     * 
+     * @param newMessage Message containing instructions for the method.
+     * @param socket The socket the communication is on.
+     * @param connectionHandler Message containing information for an Actor.
+     * @return
+     * @throws IOException
+     */
     public synchronized String handleMessage(
         MessageInfo newMessage, Socket socket, MessageIn connectionHandler)
         throws IOException {
@@ -299,7 +318,7 @@ public class Bank {
                                         "Auction House Address: " +
                                         newMessage.AHAddress + '\n'+
                                         messageDivider;
-System.out.println(newConnection);
+                        System.out.println(newConnection);
                         notifyAgents(newConnection);
 
                         returnMessage = messageDivider +
@@ -311,7 +330,7 @@ System.out.println(newConnection);
                                         "Auction House Balance: " +
                                         auctionBal.get(auctionHouseID) +'\n'+
                                         messageDivider;
-System.out.println(returnMessage);
+                        System.out.println(returnMessage);
                     }
                 }
                 else if( !auctionPort.containsKey(socket.getPort())){
@@ -475,7 +494,15 @@ System.out.println(returnMessage);
     }
         
     /**
-     * @throws IOException**********
+     * This method will notify the Agent/Auction House
+     * if about the status of the attempted transfer of funds.
+     * 
+     * @param actionStatus Integer representing different status cases.
+     * @param transferAmount Integer amount to be transferred.
+     * @param agent Agent agent.
+     * @param auction  Auction House.
+     * @return  returns a message with more status information.
+     * @throws IOException
      */
     private String transferStatus(int actionStatus, int transferAmount, String agent, String auction)
             throws IOException {
@@ -512,12 +539,25 @@ System.out.println(returnMessage);
         return message;
     }
 
-    /************ */
+    /**
+     * notifyAuction Method.
+     * This method will send a message to a specific Auction House.
+     * 
+     * @param auctionID The ID of a Auction House.
+     * @param newMessage Message to be sent to the specified Auction House. b
+     * @throws IOException
+     */
     private void notifyAuction(String auctionID, String newMessage) throws IOException {
         auctionLink.get(auctionID).sendMessage(newMessage);
     }
 
-    /************ */
+    /**
+     * notifyAgents Method.
+     * This method will notify all connected Agents
+     * a specified message.
+     * 
+     * @param newMessage Message to be sent to all connected Agents.
+     */
     private void notifyAgents(String newMessage) {
         for( String agentID : agentLink.keySet()) {
             try{
@@ -528,7 +568,17 @@ System.out.println(returnMessage);
         }
     }
 
-    /************ */
+    /**
+     * blockFunds method.
+     * This method will "block-off" a specified amount of money
+     * from an Agent's bank account once they've bid, so they can't 
+     * spend it elsewhere.
+     * 
+     * @param agentID The Agent to block funds from.
+     * @param blockAmount The amount of money to hold.
+     * @return Boolean status to identify if the transaction was successful
+     *                 or not.
+     */
     private boolean blockFunds(String agentID, int blockAmount) {
         boolean actionStatus = false;
 
@@ -545,7 +595,16 @@ System.out.println(returnMessage);
         return actionStatus;
     }
 
-    /************ */
+    /**
+     * unBlockFunds method.
+     * This method will relesase a specified amount of previously
+     * blocked funds from an agent's bank account.
+     * 
+     * @param agentID The agent to release the funds from.
+     * @param unBlockAmount The amount of money to unblock.
+     * @return Boolean status to identify if the transaction was
+     *              successful or not. 
+     */
     private boolean unBlockFunds(String agentID, int unBlockAmount) {
         boolean actionStatus = false;
 
@@ -562,7 +621,15 @@ System.out.println(returnMessage);
         return actionStatus;
     }
 
-    /************ */
+    /**
+     * transferFunds method.
+     * This method will transfer funds from an agent to an auction house.
+     * 
+     * @param agentID The Agent to transfer funds from.
+     * @param auctionID The Auction House to transfer the funds to.
+     * @param transferAmount The amount of money to transfer.
+     * @return
+     */
     private int transferFunds(String agentID, String auctionID, int transferAmount){
         int actionStatus = 0;
 
@@ -584,7 +651,16 @@ System.out.println(returnMessage);
         return actionStatus;
     }
 
-    /************ */
+    /**
+     * unTransferFunds method.
+     * This method will transfer funds back from an Auction House
+     * to an Agent.
+     * 
+     * @param agentID The Agent to transfer funds to.
+     * @param auctionID The Auction House to transfer funds from.
+     * @param transferAmount The amount of money to transfer.
+     * @return
+     */
     private boolean unTransferFunds(String agentID, String auctionID, int transferAmount){
         boolean actionStatus = false;
 
@@ -601,7 +677,15 @@ System.out.println(returnMessage);
         return actionStatus;
     }
 
-    /************ */
+    /**
+     * extractValues method.
+     * This method will take an input String and take every
+     * word separated by a space with a number in it and 
+     * store them in a String Array.
+     * 
+     * @param inputText String input to parse.
+     * @return List of words with digits in them.
+     */
     private List<String> extractValues(String inputText){
 
         String[] newInputText = inputText.split(" ");

@@ -15,33 +15,55 @@ import Messaging.MessageIn;
 import Messaging.MessageOut;
 import Messaging.MessageInfo;
 
+/**
+ * This AuctionHouse class contains methods that will 
+ * allow for communication between this object and the bank or
+ * an agent. Once it is properly connected to the bank and has an
+ * account with the bank it will begin to display a random number
+ * of items less than the specified maximum number of items, counting
+ * down at the specified maximum timer until the auctions are complete.
+ * 
+ * @author Jacob Varela
+ */
 public class AuctionHouse {
     
-    //
+    // Socket connections to the bank
     public ServerSocket server;
     public Socket auctionToBank;
 
-    //
+    // Used to communicate to the bank
     public MessageOut bankLink;
 
-    //
+    // Used for communication Stream.
     private ObjectOutputStream out;
 
-    //
+    // ID given by the bank.
     private String auctionID;
 
-    //
+    // Identifies if there is a connection to the Bank.
     private boolean isConnected;
 
-    //
+    /*
+     * The HashMap key is the ID of the Agent.
+     * The HashMap value is an input communication. 
+     */
     private HashMap<String, MessageIn> agentLink;
 
-    //
+    // List of current items for sale.
     private ArrayList<Item> currList = new ArrayList<>();
 
-    //
+    // The Auction House's ip address.
     private String myIpAddress;
     
+    /**
+     * AuctionHouse Constructor.
+     * Initializes the Auction House and makes a connection with the bank
+     * at the specified parameters.  
+     *
+     * @param ipAddress Bank's ip address.
+     * @param clientPort Auction House's port.
+     * @param serverPort Bank's Port.
+     */
     public AuctionHouse(String ipAddress, int clientPort, int serverPort){
 
         bankLink = new MessageOut("Bank");
@@ -65,6 +87,18 @@ public class AuctionHouse {
         this.isConnected = true;
     }
 
+    /**
+     * This method will parse the newMessage to identify who the message
+     * is coming from, what they want the message to execute, and it will
+     * execute it if it is a valid command but not otherwise. May return
+     * and/or send reply messages or messages to other Actors. 
+     * 
+     * @param newMessage Message containing instructions for the method.
+     * @param socket The socket the communication is on.
+     * @param connectionHandler Message containing information for an Actor.
+     * @return String with information about the transaction.
+     * @throws IOException
+     */
     public synchronized String handleMessage(
         MessageInfo newMessage, Socket socket,
         MessageIn connectionHandler)
@@ -111,6 +145,15 @@ public class AuctionHouse {
         return returnMessage;
     }
 
+    /**
+     * extractValues method.
+     * This method will take an input String and take every
+     * word separated by a space with a number in it and 
+     * store them in a String Array.
+     * 
+     * @param inputText String input to parse.
+     * @return List of words with digits in them.
+     */
     private List<String> extractValues(String in) {
         String[] newIn = in.split(" ");
 
@@ -127,12 +170,21 @@ public class AuctionHouse {
         return inputValues;
     }
 
+    /**
+     * This method will return a message in the form of a String.
+     * @param newMessage The Message received.
+     * @return Message in String form.
+     */
     public synchronized String processBankInfo
             (MessageInfo newMessage){
         String returnMessage = newMessage.toString();
         return returnMessage;
     }
     
+    /**
+     * Disconnect method.
+     * This method will forcively close the server connection.
+     */
     public void disconnect() throws IOException {
         if(server != null) {
             server.close();
@@ -142,18 +194,39 @@ public class AuctionHouse {
         }
     }
 
+    /**
+     * Sets if this Auction House is connected to a Bank or not.
+     * @param status Boolean indicating if there is a connection to a bank.
+     */
     public void setIsConnected(boolean status) {
         this.isConnected = status;
     }
 
+    /**
+     * Setter that sets the current List of items to a specified list.
+     * @param L List of items currently for sale.
+     */
     public void setCurrList(ArrayList<Item> l) {
         this.currList = l;
     }
 
+    /**
+     * Getter that return's the serverSocker.
+     * @return Server
+     */
     public ServerSocket getServer() {
         return server;
     }
 
+    /**
+     * bid method.
+     * Thid method places a specified bid onto an item.
+     * 
+     * @param ItemId The item being bid on.
+     * @param bidder The Agent bidding on the item.
+     * @param bid The amount to bid.
+     * @return Boolean indicating if the bid was successful or not.
+     */
     public boolean bid(String ItemId, String bidder, int bid) {
         for (Item i : currList) {
 
@@ -168,6 +241,11 @@ public class AuctionHouse {
         return false;
     }
 
+    /**
+     * Getter that returns a duplicate of the current items for sale.
+     * @param a Item a
+     * @return A String line of one item for sale.
+     */
     public String getCatalogue(ArrayList<Item> a) {
         String temp = "";
         for(Item i : a) {

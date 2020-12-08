@@ -36,6 +36,9 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import Messaging.MessageIn;
 
+/**
+ * @author Jacob Varela
+ */
 public class AuctionHouseGUI extends Application {
 
     // Boolean value that represents if a bank connection is present.
@@ -86,6 +89,10 @@ public class AuctionHouseGUI extends Application {
         launch(args);
     }
 
+    /**
+     * start method. 
+     * Creates the GUI stace,scene, and pane.
+     */
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -99,6 +106,16 @@ public class AuctionHouseGUI extends Application {
 
     }
 
+    /**
+     * Utilizes the JavaFX BorderPane to create the Auction House
+     * GuI.
+     * The top of the border pane holds information about the Bank
+     * and the Auction House's ip address and port numbers.
+     * The left of the border pane has buttons to connect or 
+     * disconnect from the bank.
+     * The center contains the items for sale. 
+     * @return Borderpane GUI
+     */
     private BorderPane createBorderPane() {
 
         // Create a new BorderPane.
@@ -421,6 +438,10 @@ public class AuctionHouseGUI extends Application {
         return border;
     }
 
+    /**
+     * This method clears the list of items for sale
+     * and adds new ones.
+     */
     public void updateList() {
         
         Platform.runLater(() ->{
@@ -433,6 +454,10 @@ public class AuctionHouseGUI extends Application {
         });
     }
 
+    /**
+     * This method removes all unsold items from the GUI after their auction has ended.
+     * @param IDs List of item IDs
+     */
     public void deleteUnsold(ArrayList<String> IDs){
         Platform.runLater(() -> {
             ArrayList<Item> deleteItems = new ArrayList<>();
@@ -452,6 +477,11 @@ public class AuctionHouseGUI extends Application {
         });
     }
     
+    /**
+     * This method populates the list of items with no 
+     * more than n items.
+     * @param n Max number of items to potentially add.
+     */
     public void populateList(int n) {
         Random rand = new Random();
         if(currItems.size() < n) {
@@ -468,6 +498,10 @@ public class AuctionHouseGUI extends Application {
         auctionHouse.setCurrList(currItems);
     }
 
+    /**
+     * This method populates the list of items with no more 
+     * than 4 items.
+     */
     public void populateList() {
         Random rand = new Random();
         if(currItems.size() < 4) {
@@ -480,7 +514,10 @@ public class AuctionHouseGUI extends Application {
         auctionHouse.setCurrList(currItems);
     }
 
-
+    /**
+     * This class allows us to create an Auction House
+     * instance on a new thread to avoid freezing the GUI.
+     */
     private class AuctionProxy implements Runnable {
 
         @Override
@@ -497,6 +534,14 @@ public class AuctionHouseGUI extends Application {
         }
     }
 
+    /**
+     * getResult method.
+     * This method will update the log and identify if the item
+     * sold or went unsold at auction finish.
+     * 
+     * @param i Item
+     * @throws InterruptedException
+     */
     private void getResult(Item i) throws InterruptedException {
         if(i.getCurrBid() == 0){
 
@@ -513,6 +558,11 @@ public class AuctionHouseGUI extends Application {
         }
     }
 
+    /**
+     * Timer class is used to update the Auction Items,
+     * along with their time remaining and any updates 
+     * if someone places a bid on the item.
+     */
     private class Timer implements Runnable {
 
         @Override

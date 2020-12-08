@@ -1,3 +1,10 @@
+/**
+ * Jacob Varela
+ * CS-351-004
+ * 12-08-2020
+ * Project #3: Auction House
+ */
+
 package Messaging;
 import java.io.Serializable;
 

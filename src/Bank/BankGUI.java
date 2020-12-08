@@ -24,6 +24,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+/**
+ * This class extends the Application Method and implements
+ * the classes set up in Bank.java in order to allow 
+ * the user to interact with a graphical user interface,
+ * as opposed to the command line. 
+ * 
+ * @author Jacob Varela
+ */
 public class BankGUI extends Application {
 
     // Global variable to identify if the bank was created successfully.
@@ -43,6 +51,7 @@ public class BankGUI extends Application {
         launch(args);
     }
 
+    // Launch the JavaFX GUI
     @Override
     public void start(Stage primaryStage) throws Exception {
 
@@ -55,6 +64,13 @@ public class BankGUI extends Application {
 
     }
     
+    /**
+     * This method consists of a BorderPane populated mainly
+     * by variations of VBox and HBox's to store and interact
+     * with information about the bank.
+     * 
+     * @return GUI BorderPane
+     */
     private BorderPane createBorderPane() {
 
         // Create new BorderPane.
@@ -135,6 +151,11 @@ public class BankGUI extends Application {
         portBox.setFont(Font.font("Arial", 35));
         portBox.setTextFormatter(portFormatting);
 
+        /*
+         * Create the Bank serverThread on a new thread so
+         * that when we call .start() it does not freeze
+         * the JavaFX GUI.
+         */
         Thread serverThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -170,6 +191,7 @@ public class BankGUI extends Application {
 
             }
 
+            // Update the GUI whether or not the bank was created.
             private void updateGUI(String ipAddress, int portNum) {
                 
                 if(isCreated){

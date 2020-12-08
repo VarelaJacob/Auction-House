@@ -8,36 +8,38 @@ import java.util.Scanner;
 
 public class Item {
 
-    //
+    // Identifies the different items.
     private String name;
     
-    //
+    // double values to store bidding values.
     private double currBid;
     private double minBid;
     
-    //
+    // How much time is left in the auction.
     private long timeLeft;
     
-    //
+    // Current auctin bidding time remaining.
     private Instant bidTime;
     
-    //
+    // name of the person bidding.
     private String bidder;
     
-    //
+    // Auction House ID
     private String auction;
     
-    //
+    // Item ID.
     private String itemID;
     
-    //
+    // Defines how long the items are for sale (seconds).
     private final int TIMELIMIT = 30;
 
     /**
+     * Item Constructor.
+     * Initializes Item values.
      * 
-     * @param name
-     * @param price
-     * @param auction
+     * @param name the name of the item.
+     * @param price How much the item costs to purchase.
+     * @param auction Auction House.
      */
     public Item(String name, int price, String auction){
         this.name = name;
@@ -50,9 +52,12 @@ public class Item {
     }
 
     /**
+     * placeBid method.
+     * This method updates the item to keep track
+     * of who bid and how much.
      * 
-     * @param bidder
-     * @param price
+     * @param bidder Which Agent holds the current highest bid.
+     * @param price Price of the minimum bid.
      */
     public void placeBid(String bidder, double price){
         this.bidder = bidder;
@@ -125,16 +130,16 @@ public class Item {
     }
 
     /**
-     * 
-     * @param p
+     * Setter that stores the current bid amount.
+     * @param p Amount bid on this item.
      */
     public void setCurrBid(int p) {
         this.currBid = p;
     }
 
     /**
-     * 
-     * @param id
+     * Setter that stores which Agent has the highest bid on this item.
+     * @param id AgentID who holds the highest bid.
      */
     public void setBidder(String id) {
         this.bidder = id;
@@ -171,7 +176,8 @@ public class Item {
 }
 
 /**
- * 
+ * Creates the list of items to be used as inventory
+ * for the Auction Houses.
  */
 class Items {
     public ArrayList<Item> items = new ArrayList<>();
@@ -189,6 +195,5 @@ class Items {
             int price = r.nextInt(75);
             items.add(new Item(name, price, auctionID));
         }
-        //printItems();
     }
 }

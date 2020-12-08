@@ -8,17 +8,41 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+/**
+ * MessageIn Class.
+ * This class is used to help send messages and communicate between
+ * clients using ObjectInputStream and ObjectOutputStream.
+ *  
+ * @author Jacob Varela 
+ */
 public class MessageIn implements Runnable{
 
+    // The current socket.
     private Socket socket;
+
+    // Initialize client Objects
     private Bank bank;
     private AuctionHouse auction;
+    
+    // String represents where the message is coming from.
     private String source;
+    
+    // Declare default message to return.
     private String returnMessage;
+    
+    // Declare streams for communication.
     private ObjectOutputStream outStream;
     private ObjectInputStream  inputStream;
  
-    /*********** */
+    /**
+     * MessageIn constructor.
+     * Initializes the socket that the communication is set up on and
+     * call setVar to assign variables based on the type of object passed.
+     * 
+     * @param socket Socket the connection is on.
+     * @param reference Object such as an Bank or Auction House.
+     * @throws IOException
+     */
     public MessageIn(Socket socket, Object reference) throws IOException {
         
         this.socket = socket;
@@ -28,7 +52,11 @@ public class MessageIn implements Runnable{
         inputStream = new ObjectInputStream(socket.getInputStream()) ;
     }
 
-    /******** */
+    /**
+     * Assigns variables values based on the object passed in.
+     * 
+     * @param reference Either a Bank or an Auction House.
+     */
     private void setVar(Object reference){
         
         if( reference instanceof Bank){
@@ -43,12 +71,23 @@ public class MessageIn implements Runnable{
         }
     }
 
-    /******* */
+    /**
+     * newMessage method.
+     * This method simply sends the newMessage to an Agent or Auction House.
+     * 
+     * @param newMessage The message to be sent out.
+     * @throws IOException
+     */
     public void sendMessage(String newMessage) throws IOException {
         outStream.writeObject(new MessageInfo(newMessage, source, null, 0, 0));
     }
 
-    /****** */
+    /**
+     * run method.
+     * This method sets up a connection between the client and the server.
+     * It will handle the connection setup process differently based on the 
+     * objects that are trying to communicate. 
+     */
     @Override
     public void run(){
         
