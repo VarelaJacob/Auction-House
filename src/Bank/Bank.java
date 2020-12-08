@@ -330,7 +330,7 @@ public class Bank {
                                         "Auction House Address: " +
                                         newMessage.AHAddress + '\n'+
                                         messageDivider;
-
+System.out.println(newConnection);
                         notifyAgents(newConnection);
 
                         returnMessage = messageDivider +
@@ -342,6 +342,7 @@ public class Bank {
                                         "Auction House Balance: " +
                                         auctionBal.get(auctionHouseID) +'\n'+
                                         messageDivider;
+System.out.println(returnMessage);
                     }
                 }
                 else if( !auctionPort.containsKey(socket.getPort())){

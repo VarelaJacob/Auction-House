@@ -283,11 +283,7 @@ public class Agent {
                 "at Auction House <auctionID>");
         System.out.println("auction_house connect\t\t\t\t\t\tPerform a " +
                 "manual connection to an Auction House" +
-                ".\n\t\t\t\t\t\t\t\t" +
-                "Note that " +
-                "this command is strictly optional and should in " +
-                "general cases not be used since connections to " +
-                "Auction Houses will be automatic");
+                ".\n\t\t\t\t\t\t\t\t");
         System.out.println("\nAgent Services:");
         System.out.println("Command to use\t\t\t\t\t\t\tDescription");
         System.out.println("bank_port\t\t\t\t\t\t\tGet the port " +

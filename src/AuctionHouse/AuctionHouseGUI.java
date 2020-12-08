@@ -361,7 +361,7 @@ public class AuctionHouseGUI extends Application {
 
                 try {
                     auctionHouse.bankLink.outQueue.put(new
-                        MessageInfo("create account", "auction_house", ip, auctionPort, 0));
+                        MessageInfo("create account", "auction", ip, auctionPort, 0));
                         isConnected = true;
                         bankP = Integer.toString(bankPort);
                         auctionP = Integer.toString(auctionPort);
