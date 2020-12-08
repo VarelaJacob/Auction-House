@@ -65,6 +65,7 @@ public class AuctionHouseGUI extends Application {
 
     // Label to update when status updates are received.
     static Label log = new Label("Currently waiting for user input.");
+    public int logCounter = 0;
 
     // Background colors used for various GUI elements.
     String BACKGROUNDWHITE     = "-fx-background-color: #FFFFFF";
@@ -316,15 +317,19 @@ public class AuctionHouseGUI extends Application {
         HBox hboxInit = new HBox();
         hboxInit.setStyle(BACKGROUNDUNMTURQUOISE);
         hboxInit.setAlignment(Pos.CENTER);
-        hboxInit.setSpacing(25);
+        hboxInit.setSpacing(30);
         hboxInit.getChildren().addAll(vboxInit1, vboxInit2, vboxInit3);
 
         // Format the items VBox.
-        vboxItems.setStyle(BACKGROUNDUNMTURQUOISE);
         vboxItems.setAlignment(Pos.CENTER);
+        vboxItems.setMaxWidth(550);
+        log.setStyle(BACKGROUNDUNMTURQUOISE);
+        log.setTextFill(Color.web("#FFFFFF"));
+        log.setMinWidth(200);
 
         border.setTop(hboxStatic);
         border.setLeft(vboxButtons);
+        border.setRight(log);
         border.setCenter(hboxInit);
 
         connectBtn.setOnMouseClicked( e -> {
@@ -403,10 +408,13 @@ public class AuctionHouseGUI extends Application {
             );
             time.start();
 
-            //vboxItems 
+            vboxItems.setAlignment(Pos.CENTER);
+            border.setCenter(vboxItems);
+
             Thread linkThread = new Thread(
                 auctionHouse.bankLink
             );
+
             linkThread.start();}
         });
 
@@ -422,6 +430,25 @@ public class AuctionHouseGUI extends Application {
                 Label temp = new Label(i.toString());
                 vboxItems.getChildren().add(temp);
             }
+        });
+    }
+
+    public void deleteUnsold(ArrayList<String> IDs){
+        Platform.runLater(() -> {
+            ArrayList<Item> deleteItems = new ArrayList<>();
+
+            for(String ID : IDs) {
+                for(Item i : currItems){
+                    if(ID.equals(i.getItem())){
+                        deleteItems.add(i);
+                    }
+                }
+            }
+
+            for(Item i : deleteItems){
+                currItems.remove(i);
+            }
+            auctionHouse.setCurrList(currItems);
         });
     }
     
@@ -470,6 +497,22 @@ public class AuctionHouseGUI extends Application {
         }
     }
 
+    private void getResult(Item i) throws InterruptedException {
+        if(i.getCurrBid() == 0){
+
+            String temp = "\n"+i.getName() + " ID: " + i.getItem() + " didnt sell.\n";
+            logCounter++;
+
+            Platform.runLater(() -> {
+                if(logCounter > 20){
+                    logCounter = 0;
+                    log.setText("");
+                }
+                log.setText(log.getText() + temp);
+            });
+        }
+    }
+
     private class Timer implements Runnable {
 
         @Override
@@ -483,11 +526,11 @@ public class AuctionHouseGUI extends Application {
 
                     if(i.getTimeLeft() == 0){
                         IDs.add(i.getItem());
-/*                        try {
+                        try {                            
                             getResult(i);
                         } catch (InterruptedException e){
                             e.printStackTrace();
-                        }*/
+                        }
                     }
 
                     i.updateTime(curr);
@@ -499,7 +542,7 @@ public class AuctionHouseGUI extends Application {
                     int n = IDs.size();
                     
                     isConnected = false;
-//                    deleteUnsold(IDs);
+                    deleteUnsold(IDs);
                     updateList();
                     
                     IDs = new ArrayList<>();
