@@ -1,5 +1,11 @@
 package AuctionHouse;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.UnaryOperator;
 
 import Agent.Agent;
@@ -25,6 +31,31 @@ import Messaging.MessageIn;
 
 public class AuctionHouseGUI extends Application {
 
+    // Boolean value that represents if a bank connection is present.
+      private boolean isConnected = false;
+
+    // Create item list to sell at auction.
+    public Items items;
+
+    // Maximum possible number of items to sell at auction.
+    private int MAXITEMS = 10;
+
+    // Create instances of Bank and Auction House.
+    AuctionHouse auctionHouse;
+    Bank bank;
+
+    /*
+     * The HashMap key is a port Number.
+     * The HashMap value is the ID of the Agent or Auction House.
+     */
+    private HashMap<Integer, String> agentPort;
+
+    // Create Catalogue of items.
+    public ArrayList<Item> currItems = new ArrayList<>();
+
+    // Label to update when status updates are received.
+    static Label log = new Label("Currently waiting for user input.");
+
     // Background colors used for various GUI elements.
     String BACKGROUNDWHITE     = "-fx-background-color: #FFFFFF";
     String BACKGROUNDUNMGRAY = "-fx-background-color: #63666A";
@@ -46,7 +77,7 @@ public class AuctionHouseGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 985, 400);
+        Scene scene = new Scene(bankPane, 985, 650);
         primaryStage.setTitle("Auction House GUI!"+
                 " - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
@@ -280,5 +311,81 @@ public class AuctionHouseGUI extends Application {
         border.setCenter(hboxInit);
 
         return border;
+    }
+    
+    
+
+    private class AuctionProxy implements Runnable {
+
+        @Override
+        public void run() {
+            try(ServerSocket server = auctionHouse.getServer()){
+                Socket s;
+                
+                while( (s = ss.accept()) != null){
+                    new Thread( new MessageIn(s, auctionHouse)).start();
+                }
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private class Timer implements Runnable {
+
+        @Override
+        public void run(){
+            ArrayList<String> IDs = new ArrayList<>();
+            
+            while(isConnected) {
+
+                for(Item i : currItems){
+                    Instant curr = Instant.now();
+
+                    if(i.getTimeLeft() == 0){
+                        IDs.add(i.getItem());
+                        try {
+                            getResult(i);
+                        } catch (InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+
+                    i.updateTime(curr);
+                }
+
+                auctionHouse.setCurrList(currItems);
+
+                if(IDs.size() > 0){
+                    int n = IDs.size();
+                    
+                    isConnected = false;
+                    deleteUnsold(IDs);
+                    updateList();
+                    
+                    IDs = new ArrayList<>();
+
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    populateList(n);
+                    updateList();
+                    auctionHouse.setCurrList(currItems);
+                    isConnected = true;
+                }
+                
+                auctionHouse.setCurrList(currItems);
+                
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e){
+                    e.printStackTrace();
+                }
+                updateList();
+            }
+        }
     }
 }
