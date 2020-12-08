@@ -99,37 +99,6 @@ public class Bank {
     }
 
     /************ */
-    public static void main(String[] args) throws IOException {
-        System.out.println("\nPlease type the Port number you would like to use for the bank:");
-        BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
-
-        String[] inputText = userInput.readLine().split(" ");
-
-        int portNum = Integer.parseInt(inputText[0]);
-        Socket socket;
-
-        /** Server Socket for the Bank. */
-        try (ServerSocket serverSocket = new ServerSocket(portNum)) {
-            String ipAddress = String.valueOf( InetAddress.getLocalHost().getHostAddress() );
-            Bank bank = new Bank(ipAddress, portNum);
-
-            System.out.println("\nBank Successfully created.\nBank information:");
-            System.out.println("ip address: " + ipAddress);
-            System.out.println("Port number: " + portNum);
-
-            while ((socket = serverSocket.accept()) != null) {
-                new Thread( new MessageIn(socket, bank)).start();
-
-                System.out.println("\nNew Connection Created\n");
-            }
-
-        } catch (IOException e) {
-            System.err.print("Unable to connect to port number " + portNum);
-            System.exit(-1);
-        }
-    }
-
-    /************ */
     public synchronized String handleMessage(
         MessageInfo newMessage, Socket socket, MessageIn connectionHandler)
         throws IOException {
