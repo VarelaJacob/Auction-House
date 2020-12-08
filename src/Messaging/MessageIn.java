@@ -66,7 +66,7 @@ public class MessageIn implements Runnable{
                     bank.handleMessage(inputMessage, socket, this);
                 }
                 else if( source.equals("auction") ){
-//                    auction.handleMessage(inputMessage, socket, this);
+                    auction.handleMessage(inputMessage, socket, this);
                 }
                 
                 outStream.writeObject(
@@ -74,7 +74,7 @@ public class MessageIn implements Runnable{
                 );
             }
             socket.close();
-        } catch (IOException | ClassNotFoundException e){
+        } catch (IOException | ClassNotFoundException | InterruptedException e) {
             if( source.equals("Bank")){
                 System.out.println("Connection Lost." +
                                    "Try the command 'bank info' for more information.");
