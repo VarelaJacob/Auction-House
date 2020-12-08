@@ -48,7 +48,7 @@ public class BankGUI extends Application {
 
         BorderPane bankPane = createBorderPane();
 
-        Scene scene = new Scene(bankPane, 971, 350);
+        Scene scene = new Scene(bankPane, 581, 350);
         primaryStage.setTitle("Bank GUI! - [CS-351-004] [Jacob Varela]");
         primaryStage.setScene(scene);
         primaryStage.show();
@@ -103,7 +103,7 @@ public class BankGUI extends Application {
         vboxAddress.getChildren().addAll(infoLabel1, addressLabel);
         vboxAddress.setStyle(BACKGROUNDUNMCHERRY);
         vboxAddress.setAlignment(Pos.CENTER);
-        vboxAddress.setMinWidth(300);
+        vboxAddress.setMinWidth(200);
         vboxAddress.setSpacing(25);
 
         // Create VBox to store data labels.
@@ -111,21 +111,22 @@ public class BankGUI extends Application {
         vboxPort.getChildren().addAll(infoLabel2, portLabel);
         vboxPort.setStyle(BACKGROUNDUNMCHERRY);
         vboxPort.setAlignment(Pos.CENTER);
-        vboxPort.setMinWidth(300);
+        vboxPort.setMinWidth(200);
         vboxPort.setSpacing(25);
 
         // Create HBox to store the Bank info and UNM Logo.
         HBox hboxStatic = new HBox();
         hboxStatic.setStyle(BACKGROUNDWHITE);
-        hboxStatic.setAlignment(Pos.CENTER);
+        hboxStatic.setAlignment(Pos.TOP_LEFT);
         hboxStatic.setMaxHeight(150);
-        hboxStatic.setSpacing(100);
-        hboxStatic.getChildren().addAll(vboxAddress, unmLogo, vboxPort);
+        hboxStatic.setSpacing(5);
+        hboxStatic.getChildren().addAll(unmLogo, vboxAddress, vboxPort);
 
         // Create Label to identify what to input.
         Label adjustableLabel = new Label("Enter the desired Port Number:");
         adjustableLabel.setTextFill(Color.web("#FFFFFF"));
         adjustableLabel.setFont(Font.font("Arial", 20));
+        adjustableLabel.setWrapText(true);
 
         // Create Text Field to get the Bank's Port Number
         TextField portBox = new TextField();
@@ -176,7 +177,7 @@ public class BankGUI extends Application {
                     addressLabel.setText(ipAddress);
                     portLabel.setText(port);
                     adjustableLabel.setText("The bank has been created successfully!");
-                    adjustableLabel.setFont(Font.font("Arial", 40));
+                    adjustableLabel.setFont(Font.font("Arial", 30));
 
                     VBox fillBox = new VBox(adjustableLabel);
                     fillBox.setStyle(BACKGROUNDUNMTURQUOISE);
@@ -187,7 +188,7 @@ public class BankGUI extends Application {
                 else{
                     adjustableLabel.setText("The bank has not been successfully created."+
                     "\n Please close this application and try again.");
-                    adjustableLabel.setFont(Font.font("Arial", 40));
+                    adjustableLabel.setFont(Font.font("Arial", 30));
                     adjustableLabel.setStyle(BACKGROUNDUNMCHERRY);
                     
                     vboxAddress.setStyle(BACKGROUNDWHITE);
