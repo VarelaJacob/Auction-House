@@ -120,7 +120,7 @@ public class Bank {
             while ((socket = serverSocket.accept()) != null) {
                 new Thread( new MessageIn(socket, bank)).start();
 
-                System.out.println("New Connection Created");
+                System.out.println("\nNew Connection Created\n");
             }
 
         } catch (IOException e) {
@@ -158,6 +158,7 @@ public class Bank {
                             agentLink.get(newAgentID).sendMessage(
                                 '\n'+returnMessage
                             );
+                            System.out.println(returnMessage);
                             return returnMessage;
                         }
                 else if( !agentPort.containsKey(socket.getPort() )){
@@ -274,6 +275,28 @@ public class Bank {
                                 '\n'+returnMessage
                     );
                     return returnMessage;
+                }
+                else if(newMessage.message.contains("deregister me")){
+                    String myID = agentPort.get(socket.getPort());
+                    int myPort = socket.getPort();
+                    
+                    returnMessage = messageDivider +
+                                    "Deregistering the agent " +
+                                    myID + " with the bank.\n" +
+                                    "Deleting associated accounts.\n"
+                                    + messageDivider;
+                    
+                    agentLink.get(myID).sendMessage(
+                                '\n'+returnMessage
+                    );
+                    
+                    agentBal.remove(myID);
+                    agentBlockedFunds.remove(myID);
+                    agentPort.remove(myPort);
+                    agentLink.remove(myID);
+
+                    System.out.println(returnMessage);
+                    return returnMessage;                
                 }
 
                 return returnMessage;

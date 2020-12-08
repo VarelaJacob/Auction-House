@@ -102,12 +102,16 @@ public class Agent {
         isBidding = status;
     }
 
-    /****** */
-    private void terminateAgent(){
+    /**
+     * @throws IOException
+     * @throws InterruptedException****
+     */
+    private void terminateAgent() throws InterruptedException, IOException {
         if (isBidding){
             System.out.println("Cannot exit the agent, bidding is in progress" +
                     ".\nPlease terminate the bid before exiting");
         }else {
+            this.processOutbox("Bank", "deregister me");
             System.out.println("Exiting the Agent, bye");
             System.exit(1);
         }
