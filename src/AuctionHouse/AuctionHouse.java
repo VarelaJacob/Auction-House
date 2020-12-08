@@ -71,7 +71,7 @@ public class AuctionHouse {
         throws IOException, InterruptedException{
         
         String source = newMessage.source.toLowerCase();
-System.out.println("\nLine 73\nnewMessage.source = "+ newMessage.source+'\n');
+
         String returnMessage = "Invalid keyword, try again.";
 
         switch (source) {
@@ -84,8 +84,8 @@ System.out.println("\nLine 73\nnewMessage.source = "+ newMessage.source+'\n');
                 else if(newMessage.message.contains("bid")) {
                     List<String> messageValues = extractValues(
                         newMessage.message);
-                    
-                    if(messageValues.size() != 3) {
+
+                        if(messageValues.size() == 3) {
                         String itemID = messageValues.get(0);
                         String userID = messageValues.get(1);
                         int amount = Integer.parseInt(messageValues.get(2));
@@ -95,7 +95,7 @@ System.out.println("\nLine 73\nnewMessage.source = "+ newMessage.source+'\n');
                             String transferMsg = "block funds " + userID + " "
                                         + amount;
                                 bankLink.outQueue.put
-                                        (new MessageInfo(transferMsg,"auction_house", 
+                                        (new MessageInfo(transferMsg,"auction", 
                                                 null, 0, 0));
                                 returnMessage = "Bid $" + amount + " on item " +
                                         itemID + " by " + userID;
@@ -127,7 +127,7 @@ System.out.println("\nLine 73\nnewMessage.source = "+ newMessage.source+'\n');
         return inputValues;
     }
 
-    public synchronized String processBankInformation
+    public synchronized String processBankInfo
             (MessageInfo newMessage){
         String returnMessage = newMessage.toString();
         return returnMessage;
